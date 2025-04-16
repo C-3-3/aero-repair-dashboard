@@ -7,6 +7,8 @@ import time
 import shutil
 import re
 from PyPDF2 import PdfReader
+from flask import send_file
+
 
 app = Flask(__name__)
 
@@ -20,7 +22,8 @@ PDF_LOG_PATH = "pdf_organizer.log"
 # === DASHBOARD HOME ===
 @app.route('/')
 def dashboard():
-    return render_template("base.html")
+    return render_template("dashboard.html")
+
 
 # === TASK TRACKER ===
 @app.route('/tasks', methods=['GET', 'POST'])
@@ -180,15 +183,19 @@ SOURCE_FOLDER = "C:/Users/Shared/AeroRepairCorp/IncomingDocs"
 DEST_FOLDER = "C:/Users/Shared/AeroRepairCorp/OrganizedDocs"
 
 ROUTING_KEYWORDS = {
-    "8130-3": "Forms/8130-3",
-    "Invoice": "Accounting/Invoices",
-    "Service Bulletin": "Technical/Service Bulletins",
-    "Work Order": "Production/Work Orders"
+    "FAA Form 8130-3": "Forms/8130-3",
+    "Form 8130": "Forms/8130-3",
+    "Work Order": "Production/Work Orders",
+    "Invoice Number": "Accounting/Invoices",
+    "Service Bulletin": "Technical/Service Bulletins"
 }
+
 
 def log_pdf_activity(message):
     with open(PDF_LOG_PATH, "a") as f:
-        f.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {message}\\n")
+        timestamp = datetime.now().strftime("%b %d, %Y – %I:%M %p")
+        f.write(f"[{timestamp}] {message}\n")
+
 
 def extract_text_from_pdf(filepath):
     try:
@@ -202,8 +209,9 @@ def extract_text_from_pdf(filepath):
         return ""
 
 def determine_destination(text):
+    text_lower = text.lower()
     for keyword, folder in ROUTING_KEYWORDS.items():
-        if keyword.lower() in text.lower():
+        if keyword.lower() in text_lower:
             return folder
     return "Unsorted"
 
@@ -220,7 +228,10 @@ def organize_pdf(filepath):
     destination_path = os.path.join(target_folder, new_filename)
 
     shutil.move(filepath, destination_path)
-    log_pdf_activity(f"Moved '{filename}' to '{destination_path}'")
+    # Clean up folder path for display
+    relative_path = os.path.relpath(destination_path, DEST_FOLDER).replace("\\", "/")
+    log_pdf_activity(f"✅ {filename} was sorted into → {relative_path}")
+
 
 def pdf_organizer_loop(interval=60):
     while True:
@@ -229,6 +240,19 @@ def pdf_organizer_loop(interval=60):
                 if file.lower().endswith(".pdf"):
                     organize_pdf(os.path.join(SOURCE_FOLDER, file))
         time.sleep(interval)
+
+@app.route('/pdf-organizer-log/clear', methods=['POST'])
+def clear_pdf_log():
+    if os.path.exists(PDF_LOG_PATH):
+        open(PDF_LOG_PATH, 'w').close()
+    return redirect(url_for('view_pdf_log'))
+
+@app.route('/pdf-organizer-log/download')
+def download_pdf_log():
+    if not os.path.exists(PDF_LOG_PATH):
+        return "No log available."
+    return send_file(PDF_LOG_PATH, as_attachment=True, download_name="pdf_organizer_log.txt")
+
 
 # === HELP PAGE ===
 @app.route('/help')

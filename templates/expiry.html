@@ -1,1 +1,30 @@
 <!-- expiry page content -->
+
+{% extends "base.html" %}
+{% block title %}Document Expiry Tracker{% endblock %}
+
+{% block content %}
+<h2>Document Expiry Tracker</h2>
+<p>Track calibration certs, training records, and other expiration-sensitive documents.</p>
+
+<form method="POST">
+    <label>Document Name:</label><br>
+    <input name="name"><br>
+    <label>Category:</label><br>
+    <input name="category"><br>
+    <label>Expiry Date:</label><br>
+    <input type="date" name="expiry_date"><br>
+    <label>Responsible Person:</label><br>
+    <input name="responsible"><br>
+    <button type="submit">Add Document</button>
+</form>
+
+<h3>Expiring Soon (Next 30 Days):</h3>
+<ul>
+    {% for doc in documents %}
+        <li>
+            <strong>{{ doc[1] }}</strong> ({{ doc[2] }}) - Expires on {{ doc[3] }} - Responsible: {{ doc[4] }}
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -1,1 +1,38 @@
 <!-- inspections page content -->
+
+{% extends "base.html" %}
+{% block title %}Incoming Part Inspections{% endblock %}
+
+{% block content %}
+<h2>Incoming Part Inspection Checklist</h2>
+<p>Log packaging condition, paperwork, and other inspection notes for received parts.</p>
+
+<form method="POST">
+    <label>Part Number:</label><br>
+    <input name="part_number"><br>
+    <label>Inspector:</label><br>
+    <input name="inspector"><br>
+    <label>Condition:</label><br>
+    <input name="condition"><br>
+    <label>Paperwork Complete:</label><br>
+    <input name="paperwork_complete"><br>
+    <label>Packaging Intact:</label><br>
+    <input name="packaging_intact"><br>
+    <label>Notes:</label><br>
+    <textarea name="notes"></textarea><br>
+    <button type="submit">Submit Inspection</button>
+</form>
+
+<h3>Recent Inspections:</h3>
+<ul>
+    {% for entry in inspections %}
+        <li>
+            <strong>{{ entry[1] }}</strong> inspected by {{ entry[2] }} on {{ entry[7] }} –<br>
+            Condition: {{ entry[3] }} | Paperwork: {{ entry[4] }} | Packaging: {{ entry[5] }}
+            {% if entry[6] %}
+                <br>Notes: {{ entry[6] }}
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

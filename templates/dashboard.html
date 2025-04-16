@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – Aero Repair Corp{% endblock %}
+
+{% block content %}
+<h2>Welcome to the Aero Repair Corp Dashboard</h2>
+<p>This dashboard helps manage internal tasks, inspections, documents, and compliance tracking for the repair station.</p>
+
+<div class="tool-grid">
+    <a class="card" href="{{ url_for('tasks') }}">
+        🧰 Maintenance Tasks<br><span>View & assign shop and facility jobs</span>
+    </a>
+    <a class="card" href="{{ url_for('signoffs') }}">
+        ✍️ Digital Sign-Off Log<br><span>Track technician sign-offs</span>
+    </a>
+    <a class="card" href="{{ url_for('inspections') }}">
+        🔍 Part Inspections<br><span>Log incoming part condition & notes</span>
+    </a>
+    <a class="card" href="{{ url_for('expiry') }}">
+        ⏰ Expiry Tracker<br><span>Track training, certs, calibration</span>
+    </a>
+    <a class="card" href="{{ url_for('view_pdf_log') }}">
+        📁 PDF Log<br><span>View automatic file sorting history</span>
+    </a>
+    <a class="card" href="{{ url_for('help_page') }}">
+        ❓ Help Guide<br><span>Learn how each tool works</span>
+    </a>
+</div>
+{% endblock %}

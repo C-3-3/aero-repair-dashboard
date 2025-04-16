@@ -1,1 +1,30 @@
 <!-- base layout content -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Aero Repair Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <h1>Aero Repair Corp Dashboard</h1>
+    </header>
+
+    <nav class="nav">
+        <ul>
+            <li><a href="{{ url_for('dashboard') }}">Home</a></li>
+            <li><a href="{{ url_for('tasks') }}">Maintenance Tasks</a></li>
+            <li><a href="{{ url_for('signoffs') }}">Sign-off Log</a></li>
+            <li><a href="{{ url_for('inspections') }}">Inspections</a></li>
+            <li><a href="{{ url_for('expiry') }}">Expiry Tracker</a></li>
+            <li><a href="{{ url_for('view_pdf_log') }}">PDF Log</a></li>
+            <li><a href="{{ url_for('help_page') }}">Help</a></li>
+        </ul>
+    </nav>
+
+    <main class="page-content">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

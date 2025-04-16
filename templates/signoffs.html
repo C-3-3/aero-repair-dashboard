@@ -1,1 +1,26 @@
 <!-- signoffs page content -->
+
+{% extends "base.html" %}
+{% block title %}Digital Sign-Off Log{% endblock %}
+
+{% block content %}
+<h2>Digital Sign-Off Log</h2>
+<p>Technicians can sign off on completed work here. All entries are timestamped for traceability.</p>
+
+<form method="POST">
+    <label>Task:</label><br>
+    <input name="task"><br>
+    <label>Technician Name:</label><br>
+    <input name="technician"><br>
+    <label>Signature:</label><br>
+    <input name="signature"><br>
+    <button type="submit">Sign Off</button>
+</form>
+
+<h3>Recent Sign-Offs:</h3>
+<ul>
+    {% for entry in log %}
+        <li><strong>{{ entry[1] }}</strong> signed by {{ entry[2] }} ({{ entry[3] }}) at {{ entry[4] }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

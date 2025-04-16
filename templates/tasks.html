@@ -1,1 +1,31 @@
 <!-- tasks page content -->
+{% extends "base.html" %}
+{% block title %}Maintenance Tasks{% endblock %}
+
+{% block content %}
+<h2>Maintenance Task Tracker</h2>
+<p>Log and track internal shop or facility maintenance tasks.</p>
+
+<form method="POST">
+    <label>Description:</label><br>
+    <input name="description"><br>
+    <label>Assigned To:</label><br>
+    <input name="assigned_to"><br>
+    <label>Due Date:</label><br>
+    <input type="date" name="due_date"><br>
+    <label>Notes:</label><br>
+    <textarea name="notes"></textarea><br>
+    <button type="submit">Add Task</button>
+</form>
+
+<ul>
+    {% for task in tasks %}
+        <li>
+            <strong>{{ task[1] }}</strong> (Assigned to {{ task[2] }}) - Due {{ task[3] }} - Status: {{ task[4] }}
+            {% if task[4] != 'Completed' %}
+            <a href="/complete-task/{{ task[0] }}">[Mark Complete]</a>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
