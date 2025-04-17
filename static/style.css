@@ -119,4 +119,105 @@ body {
     background: #f0f6ff;
 }
 
+.task-form input,
+.task-form textarea {
+    width: 100%;
+    max-width: 500px;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
 
+.task-form button {
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #003366;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.task-grid {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.task-card {
+    background: #f4f7fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 6px solid #005299;
+    box-shadow: 0 0 5px rgba(0,0,0,0.05);
+}
+
+.task-card.complete {
+    background: #e3f6e8;
+    border-left-color: #2e8b57;
+}
+
+.task-card.overdue {
+    background: #fff4f4;
+    border-left-color: #cc0000;
+}
+
+.filter-buttons {
+    margin: 1rem 0 2rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    background-color: #e0e6f0;
+    color: #003366;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.2s, border 0.2s;
+}
+
+.filter-btn:hover {
+    background-color: #d0d9e6;
+}
+
+.filter-btn.active {
+    background-color: #003366;
+    color: white;
+    border-color: #003366;
+}
+
+.delete-btn {
+    background-color: #aa2e2e;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    margin-top: 0.5rem;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background-color: #c93d3d;
+}
+
+.task-controls {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.beta-banner {
+    background-color: #ffefc2;
+    color: #6d4e00;
+    padding: 0.75rem;
+    text-align: center;
+    font-weight: bold;
+    border-bottom: 2px solid #e6c45d;
+}

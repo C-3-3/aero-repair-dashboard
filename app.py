@@ -40,6 +40,7 @@ def tasks():
             notes TEXT
         )
     ''')
+
     if request.method == 'POST':
         cursor.execute('''
             INSERT INTO tasks (description, assigned_to, due_date, notes)
@@ -52,10 +53,21 @@ def tasks():
         ))
         conn.commit()
         return redirect('/tasks')
-    cursor.execute("SELECT * FROM tasks ORDER BY due_date")
+
+    # FILTER BY STATUS
+    filter_status = request.args.get('status', 'All')
+    if filter_status == 'Pending':
+        cursor.execute("SELECT * FROM tasks WHERE status = 'Pending' ORDER BY due_date")
+    elif filter_status == 'Completed':
+        cursor.execute("SELECT * FROM tasks WHERE status = 'Completed' ORDER BY due_date")
+    else:
+        cursor.execute("SELECT * FROM tasks ORDER BY due_date")
+
     tasks = cursor.fetchall()
     conn.close()
-    return render_template("tasks.html", tasks=tasks)
+    return render_template("tasks.html", tasks=tasks, now=datetime.now().strftime("%Y-%m-%d"), filter_status=filter_status)
+
+
 
 @app.route('/complete-task/<int:task_id>')
 def complete_task(task_id):
@@ -65,6 +77,38 @@ def complete_task(task_id):
     conn.commit()
     conn.close()
     return redirect('/tasks')
+
+@app.route('/delete-task/<int:task_id>', methods=['POST'])
+def delete_task(task_id):
+    conn = sqlite3.connect(TASK_DB)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('tasks'))
+
+import csv
+from io import StringIO
+from flask import make_response
+
+@app.route('/tasks/export')
+def export_tasks():
+    conn = sqlite3.connect(TASK_DB)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM tasks ORDER BY due_date")
+    tasks = cursor.fetchall()
+    conn.close()
+
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["ID", "Description", "Assigned To", "Due Date", "Status", "Notes"])
+    writer.writerows(tasks)
+
+    response = make_response(output.getvalue())
+    response.headers["Content-Disposition"] = "attachment; filename=maintenance_tasks.csv"
+    response.headers["Content-type"] = "text/csv"
+    return response
+
 
 # === SIGN-OFF LOG ===
 @app.route('/signoffs', methods=['GET', 'POST'])

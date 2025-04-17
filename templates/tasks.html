@@ -1,31 +1,68 @@
 <!-- tasks page content -->
 {% extends "base.html" %}
-{% block title %}Maintenance Tasks{% endblock %}
+{% block title %}Maintenance Task Tracker{% endblock %}
 
 {% block content %}
 <h2>Maintenance Task Tracker</h2>
-<p>Log and track internal shop or facility maintenance tasks.</p>
+<p>Log and manage shop, tooling, or facility maintenance tasks.</p>
 
-<form method="POST">
+<form method="POST" class="task-form">
     <label>Description:</label><br>
-    <input name="description"><br>
+    <input name="description" required><br><br>
+
     <label>Assigned To:</label><br>
-    <input name="assigned_to"><br>
+    <input name="assigned_to"><br><br>
+
     <label>Due Date:</label><br>
-    <input type="date" name="due_date"><br>
+    <input type="date" name="due_date"><br><br>
+
     <label>Notes:</label><br>
-    <textarea name="notes"></textarea><br>
+    <textarea name="notes" rows="3"></textarea><br><br>
+
     <button type="submit">Add Task</button>
 </form>
 
-<ul>
+<hr>
+
+<h3>View Tasks by Status</h3>
+<div class="filter-buttons">
+    <a href="{{ url_for('tasks') }}" class="filter-btn {% if filter_status == 'All' %}active{% endif %}">All</a>
+    <a href="{{ url_for('tasks', status='Pending') }}" class="filter-btn {% if filter_status == 'Pending' %}active{% endif %}">Pending</a>
+    <a href="{{ url_for('tasks', status='Completed') }}" class="filter-btn {% if filter_status == 'Completed' %}active{% endif %}">Completed</a>
+</div>
+
+<a href="{{ url_for('export_tasks') }}">
+    <button class="log-btn">📤 Export Tasks (CSV)</button>
+</a>
+
+
+<h3>Current Tasks</h3>
+<div class="task-grid">
     {% for task in tasks %}
-        <li>
-            <strong>{{ task[1] }}</strong> (Assigned to {{ task[2] }}) - Due {{ task[3] }} - Status: {{ task[4] }}
-            {% if task[4] != 'Completed' %}
-            <a href="/complete-task/{{ task[0] }}">[Mark Complete]</a>
+    <div class="task-card {% if task[4] == 'Completed' %}complete{% elif task[3] < now %}overdue{% endif %}">
+        <strong>{{ task[1] }}</strong><br>
+        <small>Assigned to: {{ task[2] }}</small><br>
+        <small>Due: {{ task[3] }}</small><br>
+        <small>Status:
+            {% if task[4] == 'Completed' %}
+                ✅ Completed
+            {% else %}
+                ⏳ Pending
             {% endif %}
-        </li>
+        </small><br>
+        {% if task[5] %}
+            <small><em>Notes: {{ task[5] }}</em></small><br>
+        {% endif %}
+        {% if task[4] != 'Completed' %}
+    <a href="/complete-task/{{ task[0] }}">
+        <button>Mark Complete</button>
+    </a>
+{% endif %}
+<form method="POST" action="/delete-task/{{ task[0] }}" onsubmit="return confirm('Are you sure you want to delete this task?');" style="display:inline;">
+    <button class="delete-btn">🗑️ Delete</button>
+</form>
+    </div>
     {% endfor %}
-</ul>
+</div>
 {% endblock %}
+
