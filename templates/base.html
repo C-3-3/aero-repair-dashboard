@@ -10,8 +10,14 @@
 
 <div class="beta-banner">
     🚧 This is a beta version of the Aero Repair Dashboard — under active development.
-    Please report bugs, issues, or feedback to <strong>[your email or shared folder]</strong>.
+    Please report bugs, issues, or feedback to <strong>mkruscica@aerorepaircorp.com</strong>.
 </div>
+
+{% if session.get('logged_in') %}
+    <div style="text-align: right; margin-bottom: 1rem;">
+        <a href="{{ url_for('logout') }}" class="logout-link">🔓 Logout</a>
+    </div>
+{% endif %}
 
 
     <header class="header">

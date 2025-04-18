@@ -32,6 +32,11 @@ def login():
             return render_template('login.html', error="Incorrect password.")
     return render_template('login.html')
 
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('login'))
+
 
 # === DASHBOARD HOME ===
 @app.route('/')

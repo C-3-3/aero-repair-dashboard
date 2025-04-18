@@ -256,3 +256,17 @@ body {
     text-align: center;
     margin-top: 1rem;
 }
+
+.logout-link {
+    background-color: #aa2e2e;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.2s ease;
+}
+
+.logout-link:hover {
+    background-color: #c93d3d;
+}
