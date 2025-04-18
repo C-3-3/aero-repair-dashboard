@@ -11,6 +11,8 @@ from flask import send_file
 
 
 app = Flask(__name__)
+app.secret_key = 'aero-dashboard-secret'
+
 
 # === DATABASE PATHS ===
 TASK_DB = "aero_repair_tasks.db"
@@ -19,15 +21,33 @@ INSPECTION_DB = "inspection_logs.db"
 EXPIRY_DB = "document_expiry.db"
 PDF_LOG_PATH = "pdf_organizer.log"
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        entered_password = request.form['password']
+        if entered_password == 'aeropass123':  # 🔑 Set your shared password here
+            session['logged_in'] = True
+            return redirect(url_for('dashboard'))
+        else:
+            return render_template('login.html', error="Incorrect password.")
+    return render_template('login.html')
+
+
 # === DASHBOARD HOME ===
 @app.route('/')
 def dashboard():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
     return render_template("dashboard.html")
+
 
 
 # === TASK TRACKER ===
 @app.route('/tasks', methods=['GET', 'POST'])
 def tasks():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
     conn = sqlite3.connect(TASK_DB)
     cursor = conn.cursor()
     cursor.execute('''
@@ -65,12 +85,16 @@ def tasks():
 
     tasks = cursor.fetchall()
     conn.close()
-    return render_template("tasks.html", tasks=tasks, now=datetime.now().strftime("%Y-%m-%d"), filter_status=filter_status)
+    return render_template("tasks.html", tasks=tasks, now=datetime.now().strftime("%Y-%m-%d"),
+                           filter_status=filter_status)
 
 
 
 @app.route('/complete-task/<int:task_id>')
 def complete_task(task_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
     conn = sqlite3.connect(TASK_DB)
     cursor = conn.cursor()
     cursor.execute("UPDATE tasks SET status = 'Completed' WHERE id = ?", (task_id,))
@@ -78,14 +102,19 @@ def complete_task(task_id):
     conn.close()
     return redirect('/tasks')
 
+
 @app.route('/delete-task/<int:task_id>', methods=['POST'])
 def delete_task(task_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
     conn = sqlite3.connect(TASK_DB)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
     conn.commit()
     conn.close()
-    return redirect(url_for('tasks'))
+    return redirect('/tasks')
+
 
 import csv
 from io import StringIO
@@ -93,6 +122,9 @@ from flask import make_response
 
 @app.route('/tasks/export')
 def export_tasks():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
     conn = sqlite3.connect(TASK_DB)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM tasks ORDER BY due_date")
@@ -110,9 +142,13 @@ def export_tasks():
     return response
 
 
+
 # === SIGN-OFF LOG ===
 @app.route('/signoffs', methods=['GET', 'POST'])
 def signoffs():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
     conn = sqlite3.connect(SIGNOFF_DB)
     cursor = conn.cursor()
     cursor.execute('''
@@ -141,27 +177,30 @@ def signoffs():
     conn.close()
     return render_template("signoffs.html", log=log)
 
+
 # === INSPECTION CHECKLIST ===
 @app.route('/inspections', methods=['GET', 'POST'])
 def inspections():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
     conn = sqlite3.connect(INSPECTION_DB)
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS inspections (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             part_number TEXT NOT NULL,
-            inspector TEXT NOT NULL,
-            condition TEXT NOT NULL,
-            paperwork_complete TEXT NOT NULL,
-            packaging_intact TEXT NOT NULL,
+            inspector TEXT,
+            condition TEXT,
+            paperwork_complete TEXT,
+            packaging_intact TEXT,
             notes TEXT,
-            timestamp TEXT NOT NULL
+            timestamp TEXT
         )
     ''')
     if request.method == 'POST':
         cursor.execute('''
-            INSERT INTO inspections (part_number, inspector, condition, paperwork_complete,
-                                     packaging_intact, notes, timestamp)
+            INSERT INTO inspections (part_number, inspector, condition, paperwork_complete, packaging_intact, notes, timestamp)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', (
             request.form['part_number'],
@@ -179,9 +218,13 @@ def inspections():
     conn.close()
     return render_template("inspections.html", inspections=inspections)
 
+
 # === EXPIRY TRACKER ===
 @app.route('/expiry', methods=['GET', 'POST'])
 def expiry():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
     conn = sqlite3.connect(EXPIRY_DB)
     cursor = conn.cursor()
     cursor.execute('''
@@ -189,9 +232,8 @@ def expiry():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             category TEXT,
-            expiry_date DATE NOT NULL,
-            responsible TEXT,
-            notified INTEGER DEFAULT 0
+            expiry_date DATE,
+            responsible TEXT
         )
     ''')
     if request.method == 'POST':
@@ -206,21 +248,28 @@ def expiry():
         ))
         conn.commit()
         return redirect('/expiry')
-    today = datetime.now().date()
-    upcoming = today + timedelta(days=30)
-    cursor.execute("SELECT * FROM documents WHERE expiry_date <= ? ORDER BY expiry_date ASC", (upcoming,))
-    documents = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM documents")
+    all_docs = cursor.fetchall()
+    today = datetime.now()
+    upcoming = [doc for doc in all_docs if (datetime.strptime(doc[3], "%Y-%m-%d") - today).days <= 30]
     conn.close()
-    return render_template("expiry.html", documents=documents)
+    return render_template("expiry.html", documents=upcoming)
+
 
 # === PDF ORGANIZER LOG VIEWER ===
 @app.route('/pdf-organizer-log')
 def view_pdf_log():
-    if not os.path.exists(PDF_LOG_PATH):
-        return render_template("pdf_log.html", log="No activity yet.")
-    with open(PDF_LOG_PATH, "r") as f:
-        log_lines = f.readlines()[-20:]
-    return render_template("pdf_log.html", log="".join(log_lines))
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    if os.path.exists(PDF_LOG_PATH):
+        with open(PDF_LOG_PATH, 'r') as f:
+            log = f.read()
+    else:
+        log = ""
+    return render_template("pdf_log.html", log=log)
+
 
 # === PDF ORGANIZER ===
 SOURCE_FOLDER = "C:/Users/Shared/AeroRepairCorp/IncomingDocs"
