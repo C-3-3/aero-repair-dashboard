@@ -13,6 +13,8 @@
     Please report bugs, issues, or feedback to <strong>mkruscica@aerorepaircorp.com</strong>.
 </div>
 
+<li><a href="{{ url_for('workorders') }}">Work Orders</a></li>
+
 {% if session.get('logged_in') %}
     <div style="text-align: right; margin-bottom: 1rem;">
         <a href="{{ url_for('logout') }}" class="logout-link">🔓 Logout</a>

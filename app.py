@@ -8,6 +8,7 @@ import shutil
 import re
 from PyPDF2 import PdfReader
 from flask import send_file
+import json
 
 
 app = Flask(__name__)
@@ -60,7 +61,14 @@ def dashboard():
         return redirect(url_for('login'))
     return render_template("dashboard.html")
 
+# === WORK ORDERS ===
 
+@app.route('/workorders')
+def workorders():
+    # In the future, replace this with real Quantum integration
+    with open('mock_quantum_data.json', 'r') as f:
+        work_orders = json.load(f)
+    return render_template('workorders.html', work_orders=work_orders)
 
 # === TASK TRACKER ===
 @app.route('/tasks', methods=['GET', 'POST'])

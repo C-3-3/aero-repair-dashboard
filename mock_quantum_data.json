@@ -1,0 +1,21 @@
+[
+  {
+    "work_order_id": "WO-10234",
+    "aircraft": "N452AR",
+    "location": "NH Hangar",
+    "status": "Open",
+    "tasks": [
+      {"task_id": "T-1", "description": "Inspect elevator hinges", "assigned_to": "Mirza", "status": "In Progress"},
+      {"task_id": "T-2", "description": "Replace right tire", "assigned_to": "John", "status": "Open"}
+    ]
+  },
+  {
+    "work_order_id": "WO-10235",
+    "aircraft": "N762AR",
+    "location": "FL Hangar",
+    "status": "Completed",
+    "tasks": [
+      {"task_id": "T-1", "description": "Clean pitot tube", "assigned_to": "Sarah", "status": "Done"}
+    ]
+  }
+]

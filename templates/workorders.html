@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Work Orders{% endblock %}
+
+{% block content %}
+<h2>🛠️ Work Orders (Quantum Integration Demo)</h2>
+<p>Below is a live list of active and completed work orders. Click any row for details.</p>
+
+<!-- Status Filter (future, can be hooked up to JS or URL params) -->
+<!-- <label>Show: <select><option>All</option><option>Open</option><option>Completed</option></select></label> -->
+
+<table>
+  <tr>
+    <th>Work Order #</th>
+    <th>Aircraft</th>
+    <th>Location</th>
+    <th>Status</th>
+    <th>Tasks</th>
+  </tr>
+  {% for wo in work_orders %}
+  <tr>
+    <td>{{ wo.work_order_id }}</td>
+    <td>{{ wo.aircraft }}</td>
+    <td>{{ wo.location }}</td>
+    <td>
+      {% if wo.status == "Open" %}
+        <span style="color: green; font-weight: bold;">🟢 Open</span>
+      {% elif wo.status == "Completed" %}
+        <span style="color: gray; font-weight: bold;">✅ Completed</span>
+      {% else %}
+        {{ wo.status }}
+      {% endif %}
+    </td>
+    <td>
+      <ul>
+      {% for task in wo.tasks %}
+        <li>
+          <strong>{{ task.description }}</strong>
+          — {{ task.assigned_to }}
+          {% if task.status == "Open" %}
+            <span style="color: orange;">(Open)</span>
+          {% elif task.status == "In Progress" %}
+            <span style="color: #ff9800;">(In Progress)</span>
+          {% elif task.status == "Done" %}
+            <span style="color: green;">(Done)</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+      </ul>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+<!-- FAQ/Help -->
+<div style="margin-top: 2rem;">
+  <details>
+    <summary><strong>❓ FAQ / Help</strong></summary>
+    <ul>
+      <li><b>How do I mark a task as done?</b> — Click on the task to update its status. (Feature coming soon!)</li>
+      <li><b>Why does this page look simpler than Quantum?</b> — The goal is to show only what you need, clearly, no training required.</li>
+      <li><b>What happens when we connect Quantum?</b> — This page will update instantly to show live data from Quantum’s work order system.</li>
+    </ul>
+  </details>
+</div>
+
+{% endblock %}
