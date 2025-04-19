@@ -16,7 +16,6 @@ app.secret_key = 'aero-dashboard-secret'
 
 # === DATABASE PATHS ===
 TASK_DB = "aero_repair_tasks.db"
-SIGNOFF_DB = "signoffs.db"
 INSPECTION_DB = "inspection_logs.db"
 EXPIRY_DB = "document_expiry.db"
 PDF_LOG_PATH = "pdf_organizer.log"
