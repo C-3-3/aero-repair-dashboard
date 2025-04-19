@@ -13,6 +13,21 @@ from flask import send_file
 app = Flask(__name__)
 app.secret_key = 'aero-dashboard-secret'
 
+def ensure_column_exists(db_path, table_name, column_name, column_type):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # Get current columns
+    cursor.execute(f"PRAGMA table_info({table_name})")
+    existing_columns = [col[1] for col in cursor.fetchall()]
+
+    if column_name not in existing_columns:
+        print(f"Adding missing column '{column_name}' to '{table_name}'")
+        cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}")
+        conn.commit()
+
+    conn.close()
+
 
 # === DATABASE PATHS ===
 TASK_DB = "aero_repair_tasks.db"
@@ -154,6 +169,8 @@ def signoff():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
+    ensure_column_exists(SIGNOFF_DB, "signoffs", "tech_name", "TEXT")
+
     conn = sqlite3.connect(SIGNOFF_DB)
     cursor = conn.cursor()
     cursor.execute('''
@@ -165,6 +182,7 @@ def signoff():
             timestamp TEXT
         )
     ''')
+
 
     if request.method == 'POST':
         task = request.form['task']
