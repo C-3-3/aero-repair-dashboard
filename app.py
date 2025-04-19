@@ -14,6 +14,26 @@ import json
 app = Flask(__name__)
 app.secret_key = 'aero-dashboard-secret'
 
+# Run this once on app startup
+def init_task_db():
+    conn = sqlite3.connect('task_updates.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS task_updates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            work_order_id TEXT,
+            task_id TEXT,
+            status TEXT,
+            comment TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Call this after Flask app init
+init_task_db()
+
 def ensure_column_exists(db_path, table_name, column_name, column_type):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -28,7 +48,6 @@ def ensure_column_exists(db_path, table_name, column_name, column_type):
         conn.commit()
 
     conn.close()
-
 
 # === DATABASE PATHS ===
 TASK_DB = "aero_repair_tasks.db"
@@ -112,8 +131,18 @@ def task_detail(wo_id, task_id):
     if request.method == "POST":
         new_status = request.form.get("status")
         comment = request.form.get("comment")
-        print(f"[DEBUG] New status: {new_status}, Comment: {comment}")
-        flash("Task updated! (simulation only)", "info")
+
+        # Save to database
+        conn = sqlite3.connect('task_updates.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO task_updates (work_order_id, task_id, status, comment)
+            VALUES (?, ?, ?, ?)
+        ''', (wo_id, task_id, new_status, comment))
+        conn.commit()
+        conn.close()
+
+        flash("✅ Task update saved!", "info")
 
     return render_template("task_detail.html", work_order=selected_wo, task=selected_task)
 
