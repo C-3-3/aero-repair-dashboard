@@ -225,10 +225,12 @@ def inspections():
 
 
 # === EXPIRY TRACKER ===
-@app.route('/expiry', methods=['GET', 'POST'])
+@app.route('/expiry')
 def expiry():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
+
+    filter_type = request.args.get('filter', 'expiring')  # default filter
 
     conn = sqlite3.connect(EXPIRY_DB)
     cursor = conn.cursor()
@@ -241,40 +243,32 @@ def expiry():
             responsible TEXT
         )
     ''')
-    if request.method == 'POST':
-        cursor.execute('''
-            INSERT INTO documents (name, category, expiry_date, responsible)
-            VALUES (?, ?, ?, ?)
-        ''', (
-            request.form['name'],
-            request.form['category'],
-            request.form['expiry_date'],
-            request.form['responsible']
-        ))
-        conn.commit()
-        return redirect('/expiry')
-
     cursor.execute("SELECT * FROM documents")
     all_docs = cursor.fetchall()
+    conn.close()
+
     today = datetime.now()
-    upcoming = []
+    filtered_docs = []
 
     for doc in all_docs:
         try:
             expiry_str = doc[3]
-
-            # Clean the string and skip blanks or placeholders
             if expiry_str and expiry_str.strip() and expiry_str.strip() != "0000-00-00":
                 expiry_date = datetime.strptime(expiry_str.strip(), "%Y-%m-%d")
                 days_left = (expiry_date - today).days
-                if days_left <= 30:
-                    upcoming.append(doc)
+
+                if (
+                    (filter_type == "expiring" and 0 <= days_left <= 30) or
+                    (filter_type == "expired" and days_left < 0) or
+                    (filter_type == "all")
+                ):
+                    filtered_docs.append((doc, days_left))
         except Exception as e:
-            print(f"Skipping bad entry: {doc} — {e}")
             continue
 
-    conn.close()
-    return render_template("expiry.html", documents=upcoming)
+    return render_template("expiry.html", documents=filtered_docs, filter_type=filter_type)
+
+
 
 
 # === PDF ORGANIZER LOG VIEWER ===

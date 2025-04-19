@@ -5,30 +5,43 @@
 
 {% block content %}
 <h2>Document Expiry Tracker</h2>
-<p>Track calibration certs, training records, and other expiration-sensitive documents.</p>
 
-<form method="POST">
-    <label>Document Name:</label><br>
-    <input name="name"><br>
-    <label>Category:</label><br>
-    <input name="category"><br>
-    <label>Expiry Date:</label><br>
-    <input type="date" name="expiry_date"><br>
-    <label>Responsible Person:</label><br>
-    <input name="responsible"><br>
-    <button type="submit">Add Document</button>
-</form>
+<p>Monitor training records, calibration certificates, and other time-sensitive documents.</p>
 
-<h3>Expiring Soon (Next 30 Days):</h3>
-<ul>
-    {% if documents %}
-  {% for doc in documents %}
-    <!-- Display document info -->
-    <p>{{ doc[1] }} – expires on {{ doc[3] }}</p>
-  {% endfor %}
+<div style="margin-bottom: 1rem;">
+  <a href="/expiry?filter=expiring">🟡 Expiring Soon</a> |
+  <a href="/expiry?filter=expired">🔴 Expired</a> |
+  <a href="/expiry?filter=all">📋 View All</a>
+</div>
+
+{% if documents %}
+  <table>
+    <tr>
+      <th>Document Name</th>
+      <th>Category</th>
+      <th>Expiry Date</th>
+      <th>Responsible</th>
+      <th>Status</th>
+    </tr>
+    {% for doc, days_left in documents %}
+    <tr>
+      <td>{{ doc[1] }}</td>
+      <td>{{ doc[2] }}</td>
+      <td>{{ doc[3] }}</td>
+      <td>{{ doc[4] }}</td>
+      <td>
+        {% if days_left < 0 %}
+          <span style="color: red;">Expired</span>
+        {% elif days_left <= 30 %}
+          <span style="color: orange;">Expiring ({{ days_left }} days)</span>
+        {% else %}
+          <span style="color: green;">Valid ({{ days_left }} days)</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
 {% else %}
-  <p>No documents are expiring in the next 30 days.</p>
+  <p>No documents match this filter.</p>
 {% endif %}
-
-</ul>
 {% endblock %}
