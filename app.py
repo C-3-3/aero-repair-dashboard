@@ -261,12 +261,17 @@ def expiry():
 
     for doc in all_docs:
         try:
-            if doc[3]:  # Make sure there's a date
-                days_left = (datetime.strptime(doc[3], "%Y-%m-%d") - today).days
+            expiry_str = doc[3]
+
+            # Clean the string and skip blanks or placeholders
+            if expiry_str and expiry_str.strip() and expiry_str.strip() != "0000-00-00":
+                expiry_date = datetime.strptime(expiry_str.strip(), "%Y-%m-%d")
+                days_left = (expiry_date - today).days
                 if days_left <= 30:
                     upcoming.append(doc)
-        except ValueError:
-            continue  # Skip malformed dates
+        except Exception as e:
+            print(f"Skipping bad entry: {doc} — {e}")
+            continue
 
     conn.close()
     return render_template("expiry.html", documents=upcoming)
