@@ -169,10 +169,10 @@ def signoff():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    ensure_column_exists(SIGNOFF_DB, "signoffs", "tech_name", "TEXT")
-
     conn = sqlite3.connect(SIGNOFF_DB)
     cursor = conn.cursor()
+
+    # First create the table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS signoffs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -182,6 +182,16 @@ def signoff():
             timestamp TEXT
         )
     ''')
+    conn.commit()
+    conn.close()
+
+    # Then run safe migration checks
+    ensure_column_exists(SIGNOFF_DB, "signoffs", "tech_name", "TEXT")
+
+    # Reconnect after the table is safely built
+    conn = sqlite3.connect(SIGNOFF_DB)
+    cursor = conn.cursor()
+
 
 
     if request.method == 'POST':
