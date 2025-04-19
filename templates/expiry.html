@@ -8,6 +8,13 @@
 
 <p>Monitor training records, calibration certificates, and other time-sensitive documents.</p>
 
+<form method="GET" action="/expiry" style="margin-bottom: 1rem;">
+  <input type="text" name="q" placeholder="Search by name or person" value="{{ search_query }}">
+  <input type="hidden" name="filter" value="{{ filter_type }}">
+  <button type="submit">🔍 Search</button>
+</form>
+
+
 <div style="margin-bottom: 1rem;">
   <a href="/expiry?filter=expiring">🟡 Expiring Soon</a> |
   <a href="/expiry?filter=expired">🔴 Expired</a> |

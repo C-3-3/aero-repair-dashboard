@@ -231,6 +231,7 @@ def expiry():
         return redirect(url_for('login'))
 
     filter_type = request.args.get('filter', 'expiring')
+    search_query = request.args.get('q', '').lower()
 
     conn = sqlite3.connect(EXPIRY_DB)
     cursor = conn.cursor()
@@ -244,7 +245,6 @@ def expiry():
         )
     ''')
 
-    # Handle form submission
     if request.method == 'POST':
         name = request.form['name']
         category = request.form['category']
@@ -255,9 +255,8 @@ def expiry():
             VALUES (?, ?, ?, ?)
         ''', (name, category, expiry_date, responsible))
         conn.commit()
-        return redirect('/expiry?filter=' + filter_type)
+        return redirect(f'/expiry?filter={filter_type}&q={search_query}')
 
-    # Filter logic
     cursor.execute("SELECT * FROM documents")
     all_docs = cursor.fetchall()
     conn.close()
@@ -271,16 +270,24 @@ def expiry():
             if expiry_str and expiry_str.strip() and expiry_str.strip() != "0000-00-00":
                 expiry_date = datetime.strptime(expiry_str.strip(), "%Y-%m-%d")
                 days_left = (expiry_date - today).days
-                if (
+
+                matches_filter = (
                     (filter_type == "expiring" and 0 <= days_left <= 30) or
                     (filter_type == "expired" and days_left < 0) or
                     (filter_type == "all")
-                ):
+                )
+
+                matches_search = (
+                    search_query in doc[1].lower() or search_query in doc[4].lower()
+                ) if search_query else True
+
+                if matches_filter and matches_search:
                     filtered_docs.append((doc, days_left))
         except Exception:
             continue
 
-    return render_template("expiry.html", documents=filtered_docs, filter_type=filter_type)
+    return render_template("expiry.html", documents=filtered_docs, filter_type=filter_type, search_query=search_query)
+
 
 
 @app.route('/expiry/export')
