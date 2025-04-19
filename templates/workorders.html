@@ -58,20 +58,23 @@
     </td>
     <td>
       <ul>
-      {% for task in wo.tasks %}
-        <li>
-          <strong>{{ task.description }}</strong>
-          — {{ task.assigned_to }}
-          {% if task.status == "Open" %}
-            <span style="color: orange;">(Open)</span>
-          {% elif task.status == "In Progress" %}
-            <span style="color: #ff9800;">(In Progress)</span>
-          {% elif task.status == "Done" %}
-            <span style="color: green;">(Done)</span>
-          {% endif %}
-        </li>
-      {% endfor %}
-      </ul>
+{% for task in wo.tasks %}
+  <li>
+    <a href="{{ url_for('task_detail', wo_id=wo.work_order_id, task_id=task.task_id) }}">
+      {{ task.description }}
+    </a>
+    — <em>{{ task.assigned_to }}</em>
+    {% if task.status == "Open" %}
+      <span style="color: orange;">(Open)</span>
+    {% elif task.status == "In Progress" %}
+      <span style="color: #ff9800;">(In Progress)</span>
+    {% elif task.status == "Done" %}
+      <span style="color: green;">(Done)</span>
+    {% endif %}
+  </li>
+{% endfor %}
+</ul>
+
     </td>
   </tr>
   {% endfor %}

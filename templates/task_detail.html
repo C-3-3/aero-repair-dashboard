@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Task Details{% endblock %}
+
+{% block content %}
+<h2>🔍 Task Details</h2>
+
+<p><strong>Work Order:</strong> {{ work_order.work_order_id }}</p>
+<p><strong>Aircraft:</strong> {{ work_order.aircraft }}</p>
+<p><strong>Location:</strong> {{ work_order.location }}</p>
+
+<hr>
+
+<p><strong>Task ID:</strong> {{ task.task_id }}</p>
+<p><strong>Description:</strong> {{ task.description }}</p>
+<p><strong>Assigned To:</strong> {{ task.assigned_to }}</p>
+<p><strong>Status:</strong> {{ task.status }}</p>
+
+<hr>
+
+<p><strong>Next steps:</strong></p>
+<ul>
+  <li>Status dropdown (coming soon)</li>
+  <li>Comment box for notes</li>
+  <li>Save / Mark complete</li>
+</ul>
+
+<a href="{{ url_for('workorders') }}">← Back to Work Orders</a>
+{% endblock %}

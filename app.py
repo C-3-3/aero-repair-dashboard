@@ -85,6 +85,32 @@ def workorders():
 
     return render_template('workorders.html', work_orders=filtered_orders, status_filter=status_filter, aircraft_filter=aircraft_filter)
 
+@app.route('/workorders/<wo_id>/tasks/<task_id>')
+def task_detail(wo_id, task_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    with open('mock_quantum_data.json', 'r') as f:
+        work_orders = json.load(f)
+
+    selected_wo = None
+    selected_task = None
+
+    for wo in work_orders:
+        if wo['work_order_id'] == wo_id:
+            selected_wo = wo
+            for task in wo['tasks']:
+                if task['task_id'] == task_id:
+                    selected_task = task
+                    break
+            break
+
+    if not selected_task:
+        return "Task not found", 404
+
+    return render_template('task_detail.html', work_order=selected_wo, task=selected_task)
+
+
 
 from flask import make_response
 import csv
