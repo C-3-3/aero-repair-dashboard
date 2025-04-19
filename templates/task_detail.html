@@ -8,14 +8,36 @@
 <p><strong>Aircraft:</strong> {{ work_order.aircraft }}</p>
 <p><strong>Location:</strong> {{ work_order.location }}</p>
 
-<hr>
+<form method="POST">
+  <label>Status:
+    <select name="status">
+      <option value="Open" {% if task.status == "Open" %}selected{% endif %}>Open</option>
+      <option value="In Progress" {% if task.status == "In Progress" %}selected{% endif %}>In Progress</option>
+      <option value="Done" {% if task.status == "Done" %}selected{% endif %}>Done</option>
+    </select>
+  </label>
 
-<p><strong>Task ID:</strong> {{ task.task_id }}</p>
-<p><strong>Description:</strong> {{ task.description }}</p>
-<p><strong>Assigned To:</strong> {{ task.assigned_to }}</p>
-<p><strong>Status:</strong> {{ task.status }}</p>
+  <br><br>
 
-<hr>
+  <label>Comment:<br>
+    <textarea name="comment" rows="4" cols="50" placeholder="Add any notes..."></textarea>
+  </label>
+
+  <br><br>
+
+  <button type="submit">✅ Submit Update</button>
+</form>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul style="margin-top: 1rem;">
+      {% for category, message in messages %}
+        <li><strong>{{ category.title() }}:</strong> {{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
 
 <p><strong>Next steps:</strong></p>
 <ul>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import sqlite3
 from datetime import datetime, timedelta
 import os
@@ -85,7 +85,7 @@ def workorders():
 
     return render_template('workorders.html', work_orders=filtered_orders, status_filter=status_filter, aircraft_filter=aircraft_filter)
 
-@app.route('/workorders/<wo_id>/tasks/<task_id>')
+@app.route('/workorders/<wo_id>/tasks/<task_id>', methods=["GET", "POST"])
 def task_detail(wo_id, task_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
@@ -108,7 +108,15 @@ def task_detail(wo_id, task_id):
     if not selected_task:
         return "Task not found", 404
 
-    return render_template('task_detail.html', work_order=selected_wo, task=selected_task)
+    # TEMP: Just display submitted changes (we’ll save later)
+    if request.method == "POST":
+        new_status = request.form.get("status")
+        comment = request.form.get("comment")
+        print(f"[DEBUG] New status: {new_status}, Comment: {comment}")
+        flash("Task updated! (simulation only)", "info")
+
+    return render_template("task_detail.html", work_order=selected_wo, task=selected_task)
+
 
 
 
