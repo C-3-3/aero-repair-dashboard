@@ -211,6 +211,27 @@ def signoff():
 
     return render_template('signoff.html', signoffs=signoffs)
 
+@app.route('/signoff/export')
+def export_signoffs():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    conn = sqlite3.connect(SIGNOFF_DB)
+    cursor = conn.cursor()
+    cursor.execute("SELECT task, tech_name, signature, timestamp FROM signoffs ORDER BY timestamp DESC")
+    data = cursor.fetchall()
+    conn.close()
+
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Task", "Technician", "Signature", "Timestamp"])
+    for row in data:
+        writer.writerow(row)
+
+    response = make_response(output.getvalue())
+    response.headers["Content-Disposition"] = "attachment; filename=signoffs.csv"
+    response.headers["Content-type"] = "text/csv"
+    return response
 
 
 # === INSPECTION CHECKLIST ===
