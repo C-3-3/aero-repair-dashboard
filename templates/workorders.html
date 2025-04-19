@@ -12,6 +12,27 @@
   📤 Export Work Orders to CSV
 </a>
 
+<form method="GET" action="{{ url_for('workorders') }}" style="margin-bottom: 1rem; display: flex; gap: 10px;">
+  <label>Status:
+    <select name="status">
+      <option value="">All</option>
+      <option value="Open" {% if status_filter == "Open" %}selected{% endif %}>Open</option>
+      <option value="In Progress" {% if status_filter == "In Progress" %}selected{% endif %}>In Progress</option>
+      <option value="Completed" {% if status_filter == "Completed" %}selected{% endif %}>Completed</option>
+    </select>
+  </label>
+
+  <label>Aircraft:
+    <select name="aircraft">
+      <option value="">All</option>
+      {% for wo in work_orders %}
+        <option value="{{ wo.aircraft }}" {% if aircraft_filter == wo.aircraft %}selected{% endif %}>{{ wo.aircraft }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <button type="submit">🔍 Filter</button>
+</form>
 
 <table>
   <tr>

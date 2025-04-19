@@ -65,10 +65,26 @@ def dashboard():
 
 @app.route('/workorders')
 def workorders():
-    # In the future, replace this with real Quantum integration
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    status_filter = request.args.get('status')
+    aircraft_filter = request.args.get('aircraft')
+
     with open('mock_quantum_data.json', 'r') as f:
         work_orders = json.load(f)
-    return render_template('workorders.html', work_orders=work_orders)
+
+    # Filter based on status or aircraft
+    filtered_orders = []
+    for wo in work_orders:
+        if status_filter and wo["status"].lower() != status_filter.lower():
+            continue
+        if aircraft_filter and wo["aircraft"].lower() != aircraft_filter.lower():
+            continue
+        filtered_orders.append(wo)
+
+    return render_template('workorders.html', work_orders=filtered_orders, status_filter=status_filter, aircraft_filter=aircraft_filter)
+
 
 from flask import make_response
 import csv
