@@ -268,6 +268,50 @@ def expiry():
 
     return render_template("expiry.html", documents=filtered_docs, filter_type=filter_type)
 
+@app.route('/expiry/export')
+def export_expiry():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    filter_type = request.args.get('filter', 'expiring')
+    conn = sqlite3.connect(EXPIRY_DB)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM documents")
+    all_docs = cursor.fetchall()
+    conn.close()
+
+    today = datetime.now()
+    output_docs = []
+
+    for doc in all_docs:
+        try:
+            expiry_str = doc[3]
+            if expiry_str and expiry_str.strip() and expiry_str.strip() != "0000-00-00":
+                expiry_date = datetime.strptime(expiry_str.strip(), "%Y-%m-%d")
+                days_left = (expiry_date - today).days
+
+                if (
+                    (filter_type == "expiring" and 0 <= days_left <= 30) or
+                    (filter_type == "expired" and days_left < 0) or
+                    (filter_type == "all")
+                ):
+                    output_docs.append(doc + (days_left,))
+        except Exception:
+            continue
+
+    # Prepare CSV
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["ID", "Name", "Category", "Expiry Date", "Responsible", "Days Left"])
+    for doc in output_docs:
+        writer.writerow(doc)
+
+    response = make_response(output.getvalue())
+    response.headers["Content-Disposition"] = "attachment; filename=expiry_report.csv"
+    response.headers["Content-type"] = "text/csv"
+    return response
+
+
 
 
 
