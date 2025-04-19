@@ -45,22 +45,30 @@
       <th>Status</th>
     </tr>
     {% for doc, days_left in documents %}
-    <tr>
-      <td>{{ doc[1] }}</td>
-      <td>{{ doc[2] }}</td>
-      <td>{{ doc[3] }}</td>
-      <td>{{ doc[4] }}</td>
-      <td>
-        {% if days_left < 0 %}
-          <span style="color: red;">Expired</span>
-        {% elif days_left <= 30 %}
-          <span style="color: orange;">Expiring ({{ days_left }} days)</span>
-        {% else %}
-          <span style="color: green;">Valid ({{ days_left }} days)</span>
-        {% endif %}
-      </td>
-    </tr>
-    {% endfor %}
+    {% for doc, days_left in documents %}
+<tr {% if days_left < 0 %}
+      style="background-color: #ffe5e5;"
+    {% elif days_left <= 7 %}
+      style="background-color: #fff3cd;"
+    {% elif days_left <= 30 %}
+      style="background-color: #fffbe6;"
+    {% endif %}>
+  <td>{{ doc[1] }}</td>
+  <td>{{ doc[2] }}</td>
+  <td>{{ doc[3] }}</td>
+  <td>{{ doc[4] }}</td>
+  <td>
+    {% if days_left < 0 %}
+      <span style="color: red;">Expired</span>
+    {% elif days_left <= 30 %}
+      <span style="color: orange;">Expiring ({{ days_left }} days)</span>
+    {% else %}
+      <span style="color: green;">Valid ({{ days_left }} days)</span>
+    {% endif %}
+  </td>
+</tr>
+{% endfor %}
+
   </table>
 {% else %}
   <p>No documents match this filter.</p>
