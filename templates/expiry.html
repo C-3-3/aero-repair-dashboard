@@ -21,10 +21,14 @@
 
 <h3>Expiring Soon (Next 30 Days):</h3>
 <ul>
-    {% for doc in documents %}
-        <li>
-            <strong>{{ doc[1] }}</strong> ({{ doc[2] }}) - Expires on {{ doc[3] }} - Responsible: {{ doc[4] }}
-        </li>
-    {% endfor %}
+    {% if documents %}
+  {% for doc in documents %}
+    <!-- Display document info -->
+    <p>{{ doc[1] }} – expires on {{ doc[3] }}</p>
+  {% endfor %}
+{% else %}
+  <p>No documents are expiring in the next 30 days.</p>
+{% endif %}
+
 </ul>
 {% endblock %}
