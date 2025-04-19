@@ -132,21 +132,28 @@ def task_detail(wo_id, task_id):
         new_status = request.form.get("status")
         comment = request.form.get("comment")
 
-        # Save to database
+
+        # Fetch recent updates from task_updates.db
         conn = sqlite3.connect('task_updates.db')
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT INTO task_updates (work_order_id, task_id, status, comment)
-            VALUES (?, ?, ?, ?)
-        ''', (wo_id, task_id, new_status, comment))
-        conn.commit()
+            SELECT status, comment, timestamp
+            FROM task_updates
+            WHERE work_order_id = ? AND task_id = ?
+            ORDER BY timestamp DESC
+            LIMIT 5
+        ''', (wo_id, task_id))
+        recent_updates = cursor.fetchall()
         conn.close()
 
         flash("✅ Task update saved!", "info")
 
-    return render_template("task_detail.html", work_order=selected_wo, task=selected_task)
-
-
+    return render_template(
+        "task_detail.html",
+        work_order=selected_wo,
+        task=selected_task,
+        recent_updates=recent_updates
+    )
 
 
 from flask import make_response
