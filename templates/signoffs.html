@@ -7,20 +7,28 @@
 <h2>Digital Sign-Off Log</h2>
 <p>Technicians can sign off on completed work here. All entries are timestamped for traceability.</p>
 
-<form method="POST">
-    <label>Task:</label><br>
-    <input name="task"><br>
-    <label>Technician Name:</label><br>
-    <input name="technician"><br>
-    <label>Signature:</label><br>
-    <input name="signature"><br>
-    <button type="submit">Sign Off</button>
+<form method="POST" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 2rem;">
+  <input type="text" name="task" placeholder="Task completed" required style="flex: 1;">
+  <input type="text" name="tech_name" placeholder="Technician Name" required style="flex: 1;">
+  <input type="text" name="signature" placeholder="Signature (e.g. M.K.)" required style="flex: 1;">
+  <button type="submit" style="flex: 1; background-color: #003366; color: white;">✔️ Sign Off</button>
 </form>
 
-<h3>Recent Sign-Offs:</h3>
-<ul>
-    {% for entry in log %}
-        <li><strong>{{ entry[1] }}</strong> signed by {{ entry[2] }} ({{ entry[3] }}) at {{ entry[4] }}</li>
-    {% endfor %}
-</ul>
+<h3>Recent Sign-Offs</h3>
+<table>
+  <tr>
+    <th>Task</th>
+    <th>Technician</th>
+    <th>Signature</th>
+    <th>Timestamp</th>
+  </tr>
+  {% for task, tech_name, signature, timestamp in signoffs %}
+  <tr>
+    <td>{{ task }}</td>
+    <td>{{ tech_name }}</td>
+    <td>{{ signature }}</td>
+    <td>{{ timestamp }}</td>
+  </tr>
+  {% endfor %}
+</table>
 {% endblock %}

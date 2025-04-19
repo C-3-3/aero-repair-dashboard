@@ -149,8 +149,8 @@ def export_tasks():
 
 
 # === SIGN-OFF LOG ===
-@app.route('/signoffs', methods=['GET', 'POST'])
-def signoffs():
+@app.route('/signoff', methods=['GET', 'POST'])
+def signoff():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
@@ -159,28 +159,30 @@ def signoffs():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS signoffs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            task TEXT NOT NULL,
-            technician TEXT NOT NULL,
-            signature TEXT NOT NULL,
-            timestamp TEXT NOT NULL
+            task TEXT,
+            tech_name TEXT,
+            signature TEXT,
+            timestamp TEXT
         )
     ''')
+
     if request.method == 'POST':
+        task = request.form['task']
+        tech_name = request.form['tech_name']
+        signature = request.form['signature']
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         cursor.execute('''
-            INSERT INTO signoffs (task, technician, signature, timestamp)
+            INSERT INTO signoffs (task, tech_name, signature, timestamp)
             VALUES (?, ?, ?, ?)
-        ''', (
-            request.form['task'],
-            request.form['technician'],
-            request.form['signature'],
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        ))
+        ''', (task, tech_name, signature, timestamp))
         conn.commit()
-        return redirect('/signoffs')
-    cursor.execute("SELECT * FROM signoffs ORDER BY timestamp DESC LIMIT 10")
-    log = cursor.fetchall()
+
+    cursor.execute('SELECT task, tech_name, signature, timestamp FROM signoffs ORDER BY timestamp DESC')
+    signoffs = cursor.fetchall()
     conn.close()
-    return render_template("signoffs.html", log=log)
+
+    return render_template('signoff.html', signoffs=signoffs)
+
 
 
 # === INSPECTION CHECKLIST ===
