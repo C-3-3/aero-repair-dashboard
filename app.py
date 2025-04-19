@@ -257,7 +257,17 @@ def expiry():
     cursor.execute("SELECT * FROM documents")
     all_docs = cursor.fetchall()
     today = datetime.now()
-    upcoming = [doc for doc in all_docs if (datetime.strptime(doc[3], "%Y-%m-%d") - today).days <= 30]
+    upcoming = []
+
+    for doc in all_docs:
+        try:
+            if doc[3]:  # Make sure there's a date
+                days_left = (datetime.strptime(doc[3], "%Y-%m-%d") - today).days
+                if days_left <= 30:
+                    upcoming.append(doc)
+        except ValueError:
+            continue  # Skip malformed dates
+
     conn.close()
     return render_template("expiry.html", documents=upcoming)
 
