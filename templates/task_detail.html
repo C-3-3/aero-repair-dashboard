@@ -26,6 +26,32 @@
   <br><br>
 
   <button type="submit">✅ Submit Update</button>
+    <hr>
+<h3>🕒 Recent Updates</h3>
+
+{% set db_updates = [] %}
+{% with %}
+  {% set conn = cycler.joiner() %}
+  {% set db = __import__("sqlite3").connect("task_updates.db") %}
+  {% set c = db.cursor() %}
+  {% set db_updates = c.execute("SELECT status, comment, timestamp FROM task_updates WHERE work_order_id = ? AND task_id = ? ORDER BY timestamp DESC LIMIT 5", (work_order.work_order_id, task.task_id)).fetchall() %}
+  {% do db.close() %}
+{% endwith %}
+
+{% if db_updates %}
+  <ul>
+    {% for row in db_updates %}
+      <li>
+        <strong>Status:</strong> {{ row[0] }}<br>
+        <strong>Comment:</strong> {{ row[1] or "—" }}<br>
+        <em>{{ row[2] }}</em>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No updates yet.</p>
+{% endif %}
+
 </form>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -37,6 +63,23 @@
     </ul>
   {% endif %}
 {% endwith %}
+
+<hr>
+<h3>Recent Updates</h3>
+<ul>
+  {% with conn = sqlite3.connect('task_updates.db') %}
+  {% set c = conn.cursor() %}
+  {% set rows = c.execute("SELECT status, comment, timestamp FROM task_updates WHERE work_order_id = ? AND task_id = ? ORDER BY timestamp DESC LIMIT 5", [work_order.work_order_id, task.task_id]).fetchall() %}
+  {% do conn.close() %}
+    {% for row in rows %}
+    <li>
+      <strong>Status:</strong> {{ row[0] }} <br>
+      <strong>Comment:</strong> {{ row[1] or "—" }} <br>
+      <em>{{ row[2] }}</em>
+    </li>
+    {% endfor %}
+  {% endwith %}
+</ul>
 
 
 <p><strong>Next steps:</strong></p>
