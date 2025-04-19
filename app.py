@@ -307,6 +307,7 @@ def export_expiry():
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM documents")
     all_docs = cursor.fetchall()
+    all_docs.sort(key=lambda d: d[2].lower() if d[2] else "")
     conn.close()
 
     today = datetime.now()
@@ -352,6 +353,34 @@ def delete_expiry(doc_id):
     conn.commit()
     conn.close()
     return redirect(url_for('expiry'))
+
+@app.route('/expiry/edit/<int:doc_id>', methods=['GET', 'POST'])
+def edit_expiry(doc_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    conn = sqlite3.connect(EXPIRY_DB)
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        name = request.form['name']
+        category = request.form['category']
+        expiry_date = request.form['expiry_date']
+        responsible = request.form['responsible']
+        cursor.execute('''
+            UPDATE documents
+            SET name = ?, category = ?, expiry_date = ?, responsible = ?
+            WHERE id = ?
+        ''', (name, category, expiry_date, responsible, doc_id))
+        conn.commit()
+        conn.close()
+        return redirect(url_for('expiry'))
+
+    cursor.execute("SELECT * FROM documents WHERE id = ?", (doc_id,))
+    doc = cursor.fetchone()
+    conn.close()
+
+    return render_template('edit_expiry.html', doc=doc)
 
 
 # === PDF ORGANIZER LOG VIEWER ===

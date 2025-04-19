@@ -75,8 +75,12 @@
   <td>{{ doc[4] }}</td>
   <td>
     <td>
+  <a href="{{ url_for('edit_expiry', doc_id=doc[0]) }}">✏️ Edit</a>
   <a href="{{ url_for('delete_expiry', doc_id=doc[0]) }}" onclick="return confirm('Are you sure?')">🗑️ Delete</a>
 </td>
+
+
+
 
     {% if days_left < 0 %}
       <span style="color: red;">Expired</span>
