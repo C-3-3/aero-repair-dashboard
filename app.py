@@ -70,6 +70,40 @@ def workorders():
         work_orders = json.load(f)
     return render_template('workorders.html', work_orders=work_orders)
 
+from flask import make_response
+import csv
+from io import StringIO
+
+@app.route('/workorders/export')
+def export_workorders():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    with open('mock_quantum_data.json', 'r') as f:
+        work_orders = json.load(f)
+
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Work Order ID", "Aircraft", "Location", "Status", "Task Description", "Assigned To", "Task Status"])
+
+    for wo in work_orders:
+        for task in wo['tasks']:
+            writer.writerow([
+                wo["work_order_id"],
+                wo["aircraft"],
+                wo["location"],
+                wo["status"],
+                task["description"],
+                task["assigned_to"],
+                task["status"]
+            ])
+
+    response = make_response(output.getvalue())
+    response.headers["Content-Disposition"] = "attachment; filename=work_orders.csv"
+    response.headers["Content-type"] = "text/csv"
+    return response
+
+
 # === TASK TRACKER ===
 @app.route('/tasks', methods=['GET', 'POST'])
 def tasks():
