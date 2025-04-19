@@ -45,15 +45,22 @@
       <th>Status</th>
     </tr>
     {% for doc, days_left in documents %}
-    {% for doc, days_left in documents %}
-<tr {% if days_left < 0 %}
-      style="background-color: #ffe5e5;"
-    {% elif days_left <= 7 %}
-      style="background-color: #fff3cd;"
-    {% elif days_left <= 30 %}
-      style="background-color: #fffbe6;"
-    {% endif %}>
-  <td>{{ doc[1] }}</td>
+<tr
+  {% if days_left < 0 %}
+    style="background-color: #ffe5e5;"
+  {% elif days_left <= 7 %}
+    style="background-color: #fff3cd;"
+  {% elif days_left <= 30 %}
+    style="background-color: #fffbe6;"
+  {% endif %}
+>
+  <td>
+    {% if days_left <= 7 %}
+      <strong><u>{{ doc[1] }}</u></strong>
+    {% else %}
+      {{ doc[1] }}
+    {% endif %}
+  </td>
   <td>{{ doc[2] }}</td>
   <td>{{ doc[3] }}</td>
   <td>{{ doc[4] }}</td>
@@ -68,6 +75,7 @@
   </td>
 </tr>
 {% endfor %}
+
 
   </table>
 {% else %}
