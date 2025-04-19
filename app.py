@@ -225,12 +225,12 @@ def inspections():
 
 
 # === EXPIRY TRACKER ===
-@app.route('/expiry')
+@app.route('/expiry', methods=['GET', 'POST'])
 def expiry():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    filter_type = request.args.get('filter', 'expiring')  # default filter
+    filter_type = request.args.get('filter', 'expiring')
 
     conn = sqlite3.connect(EXPIRY_DB)
     cursor = conn.cursor()
@@ -243,6 +243,21 @@ def expiry():
             responsible TEXT
         )
     ''')
+
+    # Handle form submission
+    if request.method == 'POST':
+        name = request.form['name']
+        category = request.form['category']
+        expiry_date = request.form['expiry_date']
+        responsible = request.form['responsible']
+        cursor.execute('''
+            INSERT INTO documents (name, category, expiry_date, responsible)
+            VALUES (?, ?, ?, ?)
+        ''', (name, category, expiry_date, responsible))
+        conn.commit()
+        return redirect('/expiry?filter=' + filter_type)
+
+    # Filter logic
     cursor.execute("SELECT * FROM documents")
     all_docs = cursor.fetchall()
     conn.close()
@@ -256,17 +271,17 @@ def expiry():
             if expiry_str and expiry_str.strip() and expiry_str.strip() != "0000-00-00":
                 expiry_date = datetime.strptime(expiry_str.strip(), "%Y-%m-%d")
                 days_left = (expiry_date - today).days
-
                 if (
                     (filter_type == "expiring" and 0 <= days_left <= 30) or
                     (filter_type == "expired" and days_left < 0) or
                     (filter_type == "all")
                 ):
                     filtered_docs.append((doc, days_left))
-        except Exception as e:
+        except Exception:
             continue
 
     return render_template("expiry.html", documents=filtered_docs, filter_type=filter_type)
+
 
 @app.route('/expiry/export')
 def export_expiry():

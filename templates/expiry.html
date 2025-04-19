@@ -18,7 +18,6 @@
   <a href="/expiry/export?filter={{ filter_type }}">📤 Export Current View</a>
 </div>
 
-
 {% if documents %}
   <table>
     <tr>
@@ -50,3 +49,13 @@
   <p>No documents match this filter.</p>
 {% endif %}
 {% endblock %}
+
+<h3>Add New Document</h3>
+<form method="POST" style="margin-bottom: 2rem;">
+  <input type="text" name="name" placeholder="Document Name" required>
+  <input type="text" name="category" placeholder="Category" required>
+  <input type="date" name="expiry_date" required>
+  <input type="text" name="responsible" placeholder="Responsible Person" required>
+  <button type="submit">➕ Add Document</button>
+</form>
+
