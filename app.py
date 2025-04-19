@@ -19,6 +19,7 @@ TASK_DB = "aero_repair_tasks.db"
 INSPECTION_DB = "inspection_logs.db"
 EXPIRY_DB = "document_expiry.db"
 PDF_LOG_PATH = "pdf_organizer.log"
+SIGNOFF_DB = "signoffs.db"
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
