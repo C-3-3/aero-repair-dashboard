@@ -286,8 +286,15 @@ def expiry():
         except Exception:
             continue
 
-    return render_template("expiry.html", documents=filtered_docs, filter_type=filter_type, search_query=search_query)
-
+    # Trigger alert if critical documents found
+    critical_alert = any(days_left <= 7 for _, days_left in filtered_docs)
+    return render_template(
+        "expiry.html",
+        documents=filtered_docs,
+        filter_type=filter_type,
+        search_query=search_query,
+        critical_alert=critical_alert
+    )
 
 
 @app.route('/expiry/export')
@@ -334,7 +341,17 @@ def export_expiry():
     return response
 
 
+@app.route('/expiry/delete/<int:doc_id>')
+def delete_expiry(doc_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
 
+    conn = sqlite3.connect(EXPIRY_DB)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM documents WHERE id = ?", (doc_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('expiry'))
 
 
 # === PDF ORGANIZER LOG VIEWER ===
