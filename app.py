@@ -127,23 +127,31 @@ def task_detail(wo_id, task_id):
     if not selected_task:
         return "Task not found", 404
 
-    # TEMP: Just display submitted changes (we’ll save later)
+    # Always fetch recent updates (whether GET or POST)
+    conn = sqlite3.connect('task_updates.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT status, comment, timestamp
+        FROM task_updates
+        WHERE work_order_id = ? AND task_id = ?
+        ORDER BY timestamp DESC
+        LIMIT 5
+    ''', (wo_id, task_id))
+    recent_updates = cursor.fetchall()
+    conn.close()
+
+    # Save new update if POST
     if request.method == "POST":
         new_status = request.form.get("status")
         comment = request.form.get("comment")
 
-
-        # Fetch recent updates from task_updates.db
         conn = sqlite3.connect('task_updates.db')
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT status, comment, timestamp
-            FROM task_updates
-            WHERE work_order_id = ? AND task_id = ?
-            ORDER BY timestamp DESC
-            LIMIT 5
-        ''', (wo_id, task_id))
-        recent_updates = cursor.fetchall()
+            INSERT INTO task_updates (work_order_id, task_id, status, comment)
+            VALUES (?, ?, ?, ?)
+        ''', (wo_id, task_id, new_status, comment))
+        conn.commit()
         conn.close()
 
         flash("✅ Task update saved!", "info")
@@ -154,6 +162,7 @@ def task_detail(wo_id, task_id):
         task=selected_task,
         recent_updates=recent_updates
     )
+
 
 
 from flask import make_response
