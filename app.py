@@ -797,7 +797,8 @@ threading.Thread(target=pdf_organizer_loop, daemon=True).start()
 # === START FLASK APP ===
 if __name__ == "__main__":
     init_user_db()
+    create_test_user()
     init_task_db()
-    # any other inits I already have
     app.run(debug=True)
+
 
