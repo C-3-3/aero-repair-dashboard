@@ -105,18 +105,6 @@ def init_user_db():
     conn.commit()
     conn.close()
 
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        entered_password = request.form['password']
-        if entered_password == 'aeropass123':  # 🔑 Set your shared password here
-            session['logged_in'] = True
-            return redirect(url_for('dashboard'))
-        else:
-            return render_template('login.html', error="Incorrect password.")
-    return render_template('login.html')
-
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
