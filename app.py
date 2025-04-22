@@ -50,7 +50,7 @@ def create_test_user():
 
 # ✅ Run these immediately at startup (works locally and on Railway)
 init_user_db()
-# create_test_user() # 🔒 Temporarily disabled to avoid overwriting users
+create_test_user() # 🔒 Temporarily disabled to avoid overwriting users
 
 
 def ensure_column_exists(db_path, table_name, column_name, column_type):
