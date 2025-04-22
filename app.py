@@ -735,10 +735,9 @@ def activity_report():
 
     return render_template(
         'activity_report.html',
-        updates=updates
+        updates=updates,
+        wo_to_aircraft=wo_to_aircraft
     )
-
-
 
 
 # === RUN BACKGROUND THREAD FOR PDF ORGANIZER ===

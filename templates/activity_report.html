@@ -26,6 +26,7 @@
 <table border="1" cellpadding="8">
   <thead>
     <tr>
+        <th>Aircraft</th>
         <th>Technician</th>
       <th>Work Order</th>
       <th>Task</th>
@@ -43,11 +44,13 @@
       {{ row[1] }}
     </a>
   </td>
+  <td>{{ wo_to_aircraft.get(row[0], "Unknown") }}</td>
   <td>{{ row[2] }}</td>
-  <td>{{ row[3] }}</td>
-  <td>{{ row[4] or "—" }}</td>
-        <td>{{ row[5] }}</td>
+  <td>{{ row[3] or "—" }}</td>
+  <td>{{ row[4] }}</td>
+  <td>{{ row[5] }}</td>
 </tr>
+
 
     {% endfor %}
   </tbody>
