@@ -14,6 +14,16 @@ import json
 app = Flask(__name__)
 app.secret_key = 'aero-dashboard-secret'
 
+# === DATABASE PATHS ===
+TASK_DB = "aero_repair_tasks.db"
+INSPECTION_DB = "inspection_logs.db"
+EXPIRY_DB = "document_expiry.db"
+PDF_LOG_PATH = "pdf_organizer.log"
+SIGNOFF_DB = "signoffs.db"
+USERS_DB = "users.db"
+
+
+
 # Run this once on app startup
 def init_task_db():
     conn = sqlite3.connect('task_updates.db')
@@ -89,16 +99,6 @@ def login():
             flash("Invalid credentials", "error")
 
     return render_template("login.html")
-
-
-# === DATABASE PATHS ===
-TASK_DB = "aero_repair_tasks.db"
-INSPECTION_DB = "inspection_logs.db"
-EXPIRY_DB = "document_expiry.db"
-PDF_LOG_PATH = "pdf_organizer.log"
-SIGNOFF_DB = "signoffs.db"
-USERS_DB = "users.db"
-
 
 
 def init_user_db():
