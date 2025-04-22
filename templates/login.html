@@ -1,16 +1,23 @@
 {% extends "base.html" %}
-{% block title %}Login – Aero Repair Dashboard{% endblock %}
+{% block title %}Login{% endblock %}
 
 {% block content %}
-<h2>Login</h2>
-<p>Enter the shared password to access the Aero Repair Dashboard.</p>
+<h2>🔐 Aero Repair Login</h2>
 
-<form method="POST" class="login-form">
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Enter</button>
+<form method="POST">
+  <label>Username: <input type="text" name="username" required></label><br><br>
+  <label>Password: <input type="password" name="password" required></label><br><br>
+  <button type="submit">Log In</button>
 </form>
 
-{% if error %}
-<p class="login-error">{{ error }}</p>
-{% endif %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul>
+      {% for category, message in messages %}
+        <li><strong>{{ category.title() }}:</strong> {{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
 {% endblock %}

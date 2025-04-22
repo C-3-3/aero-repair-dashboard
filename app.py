@@ -30,6 +30,16 @@ def init_task_db():
         )
     ''')
 
+    def create_test_user():
+        conn = sqlite3.connect(USERS_DB)
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)",
+                       ("mirza", "password123", "manager"))
+        conn.commit()
+        conn.close()
+
+    create_test_user()
+
     # Try to add the 'user' column if not already there (safe migration)
     try:
         cursor.execute("ALTER TABLE task_updates ADD COLUMN user TEXT")
@@ -58,12 +68,53 @@ def ensure_column_exists(db_path, table_name, column_name, column_type):
 
     conn.close()
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        conn = sqlite3.connect(USERS_DB)
+        cursor = conn.cursor()
+        cursor.execute("SELECT role FROM users WHERE username=? AND password=?", (username, password))
+        result = cursor.fetchone()
+        conn.close()
+
+        if result:
+            session['logged_in'] = True
+            session['username'] = username
+            session['role'] = result[0]
+            return redirect(url_for('dashboard'))
+        else:
+            flash("Invalid credentials", "error")
+
+    return render_template("login.html")
+
+
 # === DATABASE PATHS ===
 TASK_DB = "aero_repair_tasks.db"
 INSPECTION_DB = "inspection_logs.db"
 EXPIRY_DB = "document_expiry.db"
 PDF_LOG_PATH = "pdf_organizer.log"
 SIGNOFF_DB = "signoffs.db"
+USERS_DB = "users.db"
+
+
+
+def init_user_db():
+    conn = sqlite3.connect(USERS_DB)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT,
+            role TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -744,5 +795,9 @@ def activity_report():
 threading.Thread(target=pdf_organizer_loop, daemon=True).start()
 
 # === START FLASK APP ===
-if __name__ == '__main__':
+if __name__ == "__main__":
+    init_user_db()
+    init_task_db()
+    # any other inits I already have
     app.run(debug=True)
+
