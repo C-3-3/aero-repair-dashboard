@@ -4,6 +4,25 @@
 {% block content %}
 <h2>📊 Recent Task Activity</h2>
 
+<form method="get" style="margin-bottom: 1rem;">
+  <label>Date From: <input type="date" name="start_date"></label>
+  <label>Date To: <input type="date" name="end_date"></label>
+
+  <label>Status:
+    <select name="status">
+      <option value="">-- All --</option>
+      <option value="Open">Open</option>
+      <option value="In Progress">In Progress</option>
+      <option value="Done">Done</option>
+    </select>
+  </label>
+
+  <label>Aircraft: <input type="text" name="aircraft" placeholder="e.g. N12345"></label>
+
+  <button type="submit">🔍 Filter</button>
+</form>
+
+
 <table border="1" cellpadding="8">
   <thead>
     <tr>
