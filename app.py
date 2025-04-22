@@ -44,7 +44,7 @@ def create_test_user():
     conn = sqlite3.connect(USERS_DB)
     cursor = conn.cursor()
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)",
-                   ("mirza", "password123", "technician"))
+                   ("mirza", "password123", "manager"))
     conn.commit()
     conn.close()
 
@@ -181,23 +181,21 @@ def task_detail(wo_id, task_id):
     conn.close()
 
     # Save new update if POST
-    if request.method == "POST":
-        new_status = request.form.get("status")
-        comment = request.form.get("comment")
+    if request.method == 'POST':
+        status = request.form['status']
+        comment = request.form['comment']
+        author = session.get('username', 'unknown')
 
         conn = sqlite3.connect('task_updates.db')
         cursor = conn.cursor()
-        username = session.get("username", "Unknown")
-
-        cursor.execute('''
-            INSERT INTO task_updates (work_order_id, task_id, status, comment, user)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (wo_id, task_id, new_status, comment, username))
-
+        cursor.execute('''INSERT INTO task_updates (work_order_id, task_id, status, comment, timestamp, author)
+                              VALUES (?, ?, ?, ?, ?, ?)''',
+                       (wo_id, task_id, status, comment, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), author))
         conn.commit()
         conn.close()
 
-        flash("✅ Task update saved!", "info")
+        flash("Update recorded!", "success")
+        return redirect(url_for('task_detail', wo_id=wo_id, task_id=task_id))
 
     return render_template(
         "task_detail.html",
@@ -366,7 +364,8 @@ def signoff():
     conn.close()
 
     # Then run safe migration checks
-    ensure_column_exists(SIGNOFF_DB, "signoffs", "tech_name", "TEXT")
+    ensure_column_exists('task_updates.db', 'task_updates', 'author', 'TEXT')
+
 
     # Reconnect after the table is safely built
     conn = sqlite3.connect(SIGNOFF_DB)
