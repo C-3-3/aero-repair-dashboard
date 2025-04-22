@@ -25,43 +25,33 @@ USERS_DB = "users.db"
 
 
 # Run this once on app startup
-def init_task_db():
-    conn = sqlite3.connect('task_updates.db')
+
+def init_user_db():
+    conn = sqlite3.connect(USERS_DB)
     cursor = conn.cursor()
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS task_updates (
+        CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            work_order_id TEXT,
-            task_id TEXT,
-            status TEXT,
-            comment TEXT,
-            user TEXT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            username TEXT UNIQUE,
+            password TEXT,
+            role TEXT
         )
     ''')
-
-    def create_test_user():
-        conn = sqlite3.connect(USERS_DB)
-        cursor = conn.cursor()
-        cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)",
-                       ("mirza", "password123", "manager"))
-        conn.commit()
-        conn.close()
-
-    create_test_user()
-
-    # Try to add the 'user' column if not already there (safe migration)
-    try:
-        cursor.execute("ALTER TABLE task_updates ADD COLUMN user TEXT")
-    except sqlite3.OperationalError:
-        pass  # column already exists
-
     conn.commit()
     conn.close()
 
+def create_test_user():
+    conn = sqlite3.connect(USERS_DB)
+    cursor = conn.cursor()
+    cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)",
+                   ("mirza", "password123", "manager"))
+    conn.commit()
+    conn.close()
 
-# Call this after Flask app init
-init_task_db()
+# ✅ Run these immediately at startup (works locally and on Railway)
+init_user_db()
+create_test_user()
+
 
 def ensure_column_exists(db_path, table_name, column_name, column_type):
     conn = sqlite3.connect(db_path)
