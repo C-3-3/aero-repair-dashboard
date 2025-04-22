@@ -25,11 +25,20 @@ def init_task_db():
             task_id TEXT,
             status TEXT,
             comment TEXT,
+            user TEXT,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+
+    # Try to add the 'user' column if not already there (safe migration)
+    try:
+        cursor.execute("ALTER TABLE task_updates ADD COLUMN user TEXT")
+    except sqlite3.OperationalError:
+        pass  # column already exists
+
     conn.commit()
     conn.close()
+
 
 # Call this after Flask app init
 init_task_db()
@@ -147,10 +156,13 @@ def task_detail(wo_id, task_id):
 
         conn = sqlite3.connect('task_updates.db')
         cursor = conn.cursor()
+        username = session.get("username", "Unknown")
+
         cursor.execute('''
-            INSERT INTO task_updates (work_order_id, task_id, status, comment)
-            VALUES (?, ?, ?, ?)
-        ''', (wo_id, task_id, new_status, comment))
+            INSERT INTO task_updates (work_order_id, task_id, status, comment, user)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (wo_id, task_id, new_status, comment, username))
+
         conn.commit()
         conn.close()
 
@@ -676,7 +688,7 @@ def activity_report():
     conn = sqlite3.connect('task_updates.db')
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT work_order_id, task_id, status, comment, timestamp
+        SELECT work_order_id, task_id, status, comment, user, timestamp
         FROM task_updates
         ORDER BY timestamp DESC
         LIMIT 50
