@@ -44,7 +44,7 @@ def create_test_user():
     conn = sqlite3.connect(USERS_DB)
     cursor = conn.cursor()
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)",
-                   ("mirza", "password123", "manager"))
+                   ("mirza", "password123", "technician"))
     conn.commit()
     conn.close()
 
