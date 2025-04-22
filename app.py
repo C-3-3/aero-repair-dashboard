@@ -685,16 +685,23 @@ def activity_report():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    # Collect filter values
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
     status = request.args.get('status')
-    aircraft = request.args.get('aircraft')
+    aircraft_filter = request.args.get('aircraft')
+
+    # Load work order -> aircraft mapping
+    with open('mock_quantum_data.json', 'r') as f:
+        all_workorders = json.load(f)
+
+    wo_to_aircraft = {
+        wo["work_order_id"]: wo["aircraft"]
+        for wo in all_workorders
+    }
 
     conn = sqlite3.connect('task_updates.db')
     cursor = conn.cursor()
 
-    # Base query
     query = '''
         SELECT work_order_id, task_id, status, comment, user, timestamp
         FROM task_updates
@@ -712,17 +719,25 @@ def activity_report():
         query += ' AND status = ?'
         params.append(status)
 
-    # Optional: filter by aircraft from work_order_id (if you're using aircraft mappings)
-    if aircraft:
-        # We'll later map aircraft via mock_quantum_data.json
-        pass  # placeholder
-
     query += ' ORDER BY timestamp DESC LIMIT 100'
     cursor.execute(query, params)
-    updates = cursor.fetchall()
+    raw_updates = cursor.fetchall()
     conn.close()
 
-    return render_template('activity_report.html', updates=updates)
+    # Filter by aircraft after fetching if needed
+    if aircraft_filter:
+        updates = [
+            row for row in raw_updates
+            if wo_to_aircraft.get(row[0], "").lower() == aircraft_filter.lower()
+        ]
+    else:
+        updates = raw_updates
+
+    return render_template(
+        'activity_report.html',
+        updates=updates
+    )
+
 
 
 
