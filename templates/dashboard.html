@@ -6,25 +6,44 @@
 <p>This dashboard helps manage internal tasks, inspections, documents, and compliance tracking for the repair station.</p>
 
 <div class="tool-grid">
+
+    <!-- Everyone sees this -->
     <a class="card" href="{{ url_for('tasks') }}">
         🧰 Maintenance Tasks<br><span>View & assign shop and facility jobs</span>
     </a>
+
+    {% if role in ['manager', 'admin'] %}
     <a class="card" href="{{ url_for('signoff') }}">
         ✍️ Digital Sign-Off Log<br><span>Track technician sign-offs</span>
     </a>
+    {% endif %}
+
+    {% if role in ['manager', 'inspector', 'admin'] %}
     <a class="card" href="{{ url_for('inspections') }}">
         🔍 Part Inspections<br><span>Log incoming part condition & notes</span>
     </a>
+    {% endif %}
+
+    {% if role in ['manager', 'admin'] %}
     <a class="card" href="{{ url_for('expiry') }}">
         ⏰ Expiry Tracker<br><span>Track training, certs, calibration</span>
     </a>
+    {% endif %}
+
+    <!-- Everyone sees this -->
     <a class="card" href="{{ url_for('view_pdf_log') }}">
         📁 PDF Log<br><span>View automatic file sorting history</span>
     </a>
+
+    <!-- Everyone sees this -->
     <a class="card" href="{{ url_for('help_page') }}">
         ❓ Help Guide<br><span>Learn how each tool works</span>
     </a>
+
+    {% if role == 'manager' %}
     <li><a href="{{ url_for('activity_report') }}">📋 Manager Activity Report</a></li>
+    {% endif %}
 
 </div>
+
 {% endblock %}
