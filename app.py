@@ -666,6 +666,27 @@ def download_pdf_log():
 def help_page():
     return render_template("help.html")
 
+# === ACTIVITY REPORT ===
+
+@app.route('/reports/activity')
+def activity_report():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    conn = sqlite3.connect('task_updates.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT work_order_id, task_id, status, comment, timestamp
+        FROM task_updates
+        ORDER BY timestamp DESC
+        LIMIT 50
+    ''')
+    updates = cursor.fetchall()
+    conn.close()
+
+    return render_template('activity_report.html', updates=updates)
+
+
 # === RUN BACKGROUND THREAD FOR PDF ORGANIZER ===
 threading.Thread(target=pdf_organizer_loop, daemon=True).start()
 
