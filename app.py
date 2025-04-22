@@ -53,20 +53,23 @@ init_user_db()
 create_test_user() # 🔒 Temporarily disabled to avoid overwriting users
 
 
-def ensure_column_exists(db_path, table_name, column_name, column_type):
-    conn = sqlite3.connect(db_path)
+def ensure_task_updates_table_exists():
+    conn = sqlite3.connect("task_updates.db")
     cursor = conn.cursor()
-
-    # Get current columns
-    cursor.execute(f"PRAGMA table_info({table_name})")
-    existing_columns = [col[1] for col in cursor.fetchall()]
-
-    if column_name not in existing_columns:
-        print(f"Adding missing column '{column_name}' to '{table_name}'")
-        cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}")
-        conn.commit()
-
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS task_updates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            work_order_id TEXT,
+            task_id TEXT,
+            status TEXT,
+            comment TEXT,
+            timestamp TEXT,
+            author TEXT
+        )
+    """)
+    conn.commit()
     conn.close()
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -364,7 +367,7 @@ def signoff():
     conn.close()
 
     # Then run safe migration checks
-    ensure_column_exists('task_updates.db', 'task_updates', 'author', 'TEXT')
+    ensure_task_updates_table_exists()
 
 
     # Reconnect after the table is safely built
