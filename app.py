@@ -21,10 +21,13 @@ EXPIRY_DB = "document_expiry.db"
 PDF_LOG_PATH = "pdf_organizer.log"
 SIGNOFF_DB = "signoffs.db"
 USERS_DB = "users.db"
+ROLE_PERMISSIONS = {
+    'technician': ['tasks', 'signoff'],
+    'inspector': ['inspections', 'expiry'],
+    'manager': ['tasks', 'signoff', 'inspections', 'expiry', 'activity_report'],
+    'admin': ['tasks', 'signoff', 'inspections', 'expiry', 'activity_report', 'view_pdf_log', 'help_page']
+}
 
-
-
-# Run this once on app startup
 
 # === Initialize databases on startup (runs locally and on Railway) ===
 def init_user_db():
@@ -89,7 +92,9 @@ ensure_task_updates_table_exists()
 init_task_db()
 create_test_user()  # keep commented out in production
 
-
+def has_permission(tool_name):
+    role = session.get('role')
+    return role in ROLE_PERMISSIONS and tool_name in ROLE_PERMISSIONS[role]
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -270,16 +275,20 @@ def tasks():
     ''')
 
     if request.method == 'POST':
-        cursor.execute('''
-            INSERT INTO tasks (description, assigned_to, due_date, notes)
-            VALUES (?, ?, ?, ?)
-        ''', (
-            request.form['description'],
-            request.form['assigned_to'],
-            request.form['due_date'],
-            request.form['notes']
-        ))
-        conn.commit()
+        if session.get('role') != 'manager':
+            flash("You do not have permission to create new tasks.", "error")
+        else:
+            cursor.execute('''
+                INSERT INTO tasks (description, assigned_to, due_date, notes)
+                VALUES (?, ?, ?, ?)
+            ''', (
+                request.form['description'],
+                request.form['assigned_to'],
+                request.form['due_date'],
+                request.form['notes']
+            ))
+            conn.commit()
+            flash("Task added!", "success")
         return redirect('/tasks')
 
     # FILTER BY STATUS
@@ -316,12 +325,18 @@ def delete_task(task_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
+    if session.get('role') != 'manager':
+        flash("Only managers can delete tasks.", "error")
+        return redirect('/tasks')
+
     conn = sqlite3.connect(TASK_DB)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
     conn.commit()
     conn.close()
+    flash("Task deleted.", "success")
     return redirect('/tasks')
+
 
 
 import csv
