@@ -742,6 +742,7 @@ def activity_report():
     query = '''
         SELECT work_order_id, task_id, status, comment, user, timestamp
         FROM task_updates
+
         WHERE 1=1
     '''
     params = []
