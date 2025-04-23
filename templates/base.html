@@ -1,4 +1,3 @@
-<!-- base layout content -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,14 +12,10 @@
     Please report bugs, issues, or feedback to <strong>mkruscica@aerorepaircorp.com</strong>.
 </div>
 
-<li><a href="{{ url_for('workorders') }}">Work Orders</a></li>
-
 {% if session.get('logged_in') %}
     <div style="text-align: right; margin-bottom: 1rem;">
         <a href="{{ url_for('logout') }}" class="logout-link">🔓 Logout</a>
     </div>
-{% endif %}
-
 
     <header class="header">
         <h1>Aero Repair Corp Dashboard</h1>
@@ -29,17 +24,34 @@
     <nav class="nav">
         <ul>
             <li><a href="{{ url_for('dashboard') }}">Home</a></li>
-            <li><a href="{{ url_for('tasks') }}">Maintenance Tasks</a></li>
-            <li><a href="{{ url_for('signoff') }}">Sign-off Log</a></li>
-            <li><a href="{{ url_for('inspections') }}">Inspections</a></li>
-            <li><a href="{{ url_for('expiry') }}">Expiry Tracker</a></li>
-            <li><a href="{{ url_for('view_pdf_log') }}">PDF Log</a></li>
+            <li><a href="{{ url_for('workorders') }}">Work Orders</a></li>
+
+            {% if session.get('role') in ['technician', 'manager', 'admin'] %}
+                <li><a href="{{ url_for('tasks') }}">Maintenance Tasks</a></li>
+                <li><a href="{{ url_for('signoff') }}">Sign-off Log</a></li>
+            {% endif %}
+
+            {% if session.get('role') in ['inspector', 'manager', 'admin'] %}
+                <li><a href="{{ url_for('inspections') }}">Inspections</a></li>
+                <li><a href="{{ url_for('expiry') }}">Expiry Tracker</a></li>
+            {% endif %}
+
+            {% if session.get('role') in ['manager', 'admin'] %}
+                <li><a href="{{ url_for('activity_report') }}">Activity Report</a></li>
+            {% endif %}
+
+            {% if session.get('role') == 'admin' %}
+                <li><a href="{{ url_for('view_pdf_log') }}">PDF Log</a></li>
+            {% endif %}
+
             <li><a href="{{ url_for('help_page') }}">Help</a></li>
         </ul>
     </nav>
+{% endif %}
 
-    <main class="page-content">
-        {% block content %}{% endblock %}
-    </main>
+<main class="page-content">
+    {% block content %}{% endblock %}
+</main>
+
 </body>
 </html>
