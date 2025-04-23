@@ -5,57 +5,55 @@
 <h2>📊 Recent Task Activity</h2>
 
 <form method="get" style="margin-bottom: 1rem;">
-  <label>Date From: <input type="date" name="start_date"></label>
-  <label>Date To: <input type="date" name="end_date"></label>
+  <label>Date From: <input type="date" name="start_date" value="{{ request.args.get('start_date', '') }}"></label>
+  <label>Date To: <input type="date" name="end_date" value="{{ request.args.get('end_date', '') }}"></label>
 
   <label>Status:
     <select name="status">
-      <option value="">-- All --</option>
-      <option value="Open">Open</option>
-      <option value="In Progress">In Progress</option>
-      <option value="Done">Done</option>
+      <option value="" {% if not request.args.get('status') %}selected{% endif %}>-- All --</option>
+      <option value="Open" {% if request.args.get('status') == 'Open' %}selected{% endif %}>Open</option>
+      <option value="In Progress" {% if request.args.get('status') == 'In Progress' %}selected{% endif %}>In Progress</option>
+      <option value="Done" {% if request.args.get('status') == 'Done' %}selected{% endif %}>Done</option>
     </select>
   </label>
 
-  <label>Aircraft: <input type="text" name="aircraft" placeholder="e.g. N12345"></label>
+  <label>Aircraft: <input type="text" name="aircraft" placeholder="e.g. N12345" value="{{ request.args.get('aircraft', '') }}"></label>
 
   <button type="submit">🔍 Filter</button>
 </form>
 
-
 <table border="1" cellpadding="8">
   <thead>
     <tr>
-        <th>Aircraft</th>
-        <th>Technician</th>
       <th>Work Order</th>
       <th>Task</th>
+      <th>Aircraft</th>
       <th>Status</th>
       <th>Comment</th>
+      <th>Technician</th>
       <th>Timestamp</th>
     </tr>
   </thead>
   <tbody>
     {% for row in updates %}
     <tr>
-  <td>{{ row[0] }}</td> <!-- Work Order ID -->
-  <td>
-    <a href="{{ url_for('task_detail', wo_id=row[0], task_id=row[1]) }}">
-      {{ row[1] }}
-    </a> <!-- Task ID with link -->
-  </td>
-  <td>{{ wo_to_aircraft.get(row[0], "Unknown") }}</td> <!-- Aircraft -->
-  <td>{{ row[2] }}</td> <!-- Status -->
-  <td>{{ row[3] or "—" }}</td> <!-- Comment -->
-  <td>{{ row[4] }}</td> <!-- User/Technician -->
-  <td>{{ row[5] }}</td> <!-- Timestamp -->
-</tr>
-
-
-
+      <td>{{ row[0] }}</td> <!-- Work Order ID -->
+      <td>
+        <a href="{{ url_for('task_detail', wo_id=row[0], task_id=row[1]) }}">
+          {{ row[1] }}
+        </a>
+      </td>
+      <td>{{ wo_to_aircraft.get(row[0], "Unknown") }}</td> <!-- Aircraft -->
+      <td>{{ row[2] }}</td> <!-- Status -->
+      <td>{{ row[3] or "—" }}</td> <!-- Comment -->
+      <td>{{ row[4] }}</td> <!-- Technician -->
+      <td>{{ row[5] }}</td> <!-- Timestamp -->
+    </tr>
     {% endfor %}
   </tbody>
 </table>
+
+<p><strong>Total Updates:</strong> {{ updates|length }}</p>
 
 <a href="{{ url_for('dashboard') }}">← Back to Dashboard</a>
 {% endblock %}
