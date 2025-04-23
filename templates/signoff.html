@@ -1,10 +1,8 @@
-<!-- signoffs page content -->
-
 {% extends "base.html" %}
 {% block title %}Digital Sign-Off Log{% endblock %}
 
 {% block content %}
-<h2>Digital Sign-Off Log</h2>
+<h2>✍️ Digital Sign-Off Log</h2>
 <p>Technicians can sign off on completed work here. All entries are timestamped for traceability.</p>
 
 <form method="POST" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 2rem;">
@@ -14,26 +12,35 @@
   <button type="submit" style="flex: 1; background-color: #003366; color: white;">✔️ Sign Off</button>
 </form>
 
-<a href="/signoff/export" style="margin-bottom: 1rem; display: inline-block;">
+<a href="{{ url_for('export_signoffs') }}" style="margin-bottom: 1rem; display: inline-block;">
   📤 Export Sign-Offs to CSV
 </a>
 
-
 <h3>Recent Sign-Offs</h3>
-<table>
-  <tr>
-    <th>Task</th>
-    <th>Technician</th>
-    <th>Signature</th>
-    <th>Timestamp</th>
-  </tr>
-  {% for task, tech_name, signature, timestamp in signoffs %}
-  <tr>
-    <td>{{ task }}</td>
-    <td>{{ tech_name }}</td>
-    <td>{{ signature }}</td>
-    <td>{{ timestamp }}</td>
-  </tr>
-  {% endfor %}
+{% if signoffs %}
+<table style="width: 100%; border-collapse: collapse;">
+  <thead>
+    <tr>
+      <th style="text-align: left; padding: 8px;">Task</th>
+      <th style="text-align: left; padding: 8px;">Technician</th>
+      <th style="text-align: left; padding: 8px;">Signature</th>
+      <th style="text-align: left; padding: 8px;">Timestamp</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for task, tech_name, signature, timestamp in signoffs %}
+    <tr>
+      <td style="padding: 8px;">{{ task }}</td>
+      <td style="padding: 8px;">{{ tech_name }}</td>
+      <td style="padding: 8px;">{{ signature }}</td>
+      <td style="padding: 8px;">{{ timestamp }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
+{% else %}
+<p>No sign-offs have been recorded yet.</p>
+{% endif %}
+
+<a href="{{ url_for('dashboard') }}" style="display: inline-block; margin-top: 1rem;">← Back to Dashboard</a>
 {% endblock %}
