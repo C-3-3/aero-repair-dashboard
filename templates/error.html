@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="error-card">
-    <h2>⚠️ {{ message_title }}</h2>
+    <h2 role="alert">⚠️ {{ message_title }}</h2>
     <p>{{ message_body }}</p>
     <a href="{{ url_for('dashboard') }}">
         <button class="log-btn">← Back to Dashboard</button>
