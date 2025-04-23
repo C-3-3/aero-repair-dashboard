@@ -47,10 +47,15 @@ def init_user_db():
 def create_test_user():
     conn = sqlite3.connect(USERS_DB)
     cursor = conn.cursor()
+    # Manager test account
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)",
                    ("mirza", "password123", "manager"))
+    # Technician test account
+    cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)",
+                   ("tech1", "password123", "technician"))
     conn.commit()
     conn.close()
+
 
 def ensure_task_updates_table_exists():
     conn = sqlite3.connect("task_updates.db")
