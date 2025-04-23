@@ -325,14 +325,45 @@ def complete_task(task_id):
     return redirect('/tasks')
 
 
-@app.route('/delete-task/<int:task_id>', methods=['POST'])
-def delete_task(task_id):
+@app.route('/complete-task/<int:task_id>')
+def complete_task(task_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    if session.get('role') != 'manager':
-        flash("Only managers can delete tasks.", "error")
-        return redirect('/tasks')
+    username = session.get('username', 'unknown')
+
+    # Step 1: Update the task status in the main task DB
+    conn = sqlite3.connect(TASK_DB)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE tasks SET status = 'Completed' WHERE id = ?", (task_id,))
+
+    # Step 2: Find the related work_order_id and task_id (mocked here as we don’t store them)
+    # So we log the update under generic IDs unless Quantum is providing this
+    work_order_id = "Unknown"
+    task_identifier = f"TASK-{task_id}"  # Use something consistent until Quantum provides real task IDs
+
+    conn.commit()
+    conn.close()
+
+    # Step 3: Log the update in task_updates.db
+    conn = sqlite3.connect("task_updates.db")
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO task_updates (work_order_id, task_id, status, comment, timestamp, user)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (
+        work_order_id,
+        task_identifier,
+        "Completed",
+        "Marked complete from maintenance tool",
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        username
+    ))
+    conn.commit()
+    conn.close()
+
+    flash("Task marked as complete and recorded!", "success")
+    return redirect('/tasks')
 
     conn = sqlite3.connect(TASK_DB)
     cursor = conn.cursor()
