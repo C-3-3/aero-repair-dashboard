@@ -48,11 +48,6 @@ def create_test_user():
     conn.commit()
     conn.close()
 
-# ✅ Run these immediately at startup (works locally and on Railway)
-init_user_db()
-create_test_user() # 🔒 Temporarily disabled to avoid overwriting users
-
-
 def ensure_task_updates_table_exists():
     conn = sqlite3.connect("task_updates.db")
     cursor = conn.cursor()
@@ -777,7 +772,9 @@ threading.Thread(target=pdf_organizer_loop, daemon=True).start()
 
 # === START FLASK APP ===
 if __name__ == "__main__":
+    init_user_db()
     ensure_task_updates_table_exists()
+    create_test_user()  # 🔒 Temporarily disabled to avoid overwriting users
     app.run(debug=True)
 
 
