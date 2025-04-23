@@ -8,9 +8,10 @@
 <p><strong>Aircraft:</strong> {{ work_order.aircraft }}</p>
 <p><strong>Location:</strong> {{ work_order.location }}</p>
 
-<form method="POST">
+{% if session.get('logged_in') %}
+<form method="POST" style="margin-top: 1rem;">
   <label>Status:
-    <select name="status">
+    <select name="status" required>
       <option value="Open" {% if task.status == "Open" %}selected{% endif %}>Open</option>
       <option value="In Progress" {% if task.status == "In Progress" %}selected{% endif %}>In Progress</option>
       <option value="Done" {% if task.status == "Done" %}selected{% endif %}>Done</option>
@@ -26,8 +27,8 @@
   <br><br>
 
   <button type="submit">✅ Submit Update</button>
-
 </form>
+{% endif %}
 
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
@@ -41,26 +42,31 @@
 
 <hr>
 <h3>🕒 Recent Updates</h3>
-<ul>
-  {% for update in recent_updates %}
-    <li>
-      <strong>Status:</strong> {{ update[0] }}<br>
-      <strong>Comment:</strong> {{ update[1] or "—" }}<br>
-      <strong>By:</strong> {{ update[3] or "unknown" }}<br>
-      <em>{{ update[2] }}</em>
-    </li>
-  {% endfor %}
-</ul>
 
+{% if recent_updates %}
+  <table style="width: 100%; border-collapse: collapse;">
+    <thead>
+      <tr>
+        <th>Status</th>
+        <th>Comment</th>
+        <th>Technician</th>
+        <th>Timestamp</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for update in recent_updates %}
+      <tr>
+        <td>{{ update[0] }}</td>
+        <td>{{ update[1] or "—" }}</td>
+        <td>{{ update[3] or "unknown" }}</td>
+        <td>{{ update[2] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No recent updates recorded for this task.</p>
+{% endif %}
 
-
-
-<p><strong>Next steps:</strong></p>
-<ul>
-  <li>Status dropdown (coming soon)</li>
-  <li>Comment box for notes</li>
-  <li>Save / Mark complete</li>
-</ul>
-
-<a href="{{ url_for('workorders') }}">← Back to Work Orders</a>
+<p style="margin-top: 2rem;"><a href="{{ url_for('workorders') }}">← Back to Work Orders</a></p>
 {% endblock %}
