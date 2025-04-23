@@ -1,14 +1,32 @@
 {% extends "base.html" %}
-{% block title %}Edit Document{% endblock %}
+{% block title %}Edit Document – Expiry Tracker{% endblock %}
 
 {% block content %}
-<h2>Edit Document</h2>
-<form method="POST" style="display: flex; flex-wrap: wrap; gap: 10px;">
-  <input type="text" name="name" value="{{ doc[1] }}" required style="flex: 1;">
-  <input type="text" name="category" value="{{ doc[2] }}" required style="flex: 1;">
-  <input type="date" name="expiry_date" value="{{ doc[3] }}" required style="flex: 1;">
-  <input type="text" name="responsible" value="{{ doc[4] }}" required style="flex: 1;">
-  <button type="submit" style="flex: 1; background-color: #003366; color: white;">💾 Save Changes</button>
+<h2>📝 Edit Expiry Record</h2>
+
+<form method="POST" class="form-grid">
+  <label>
+    Document Name:
+    <input type="text" name="name" value="{{ doc[1] }}" required>
+  </label>
+
+  <label>
+    Category:
+    <input type="text" name="category" value="{{ doc[2] }}" required>
+  </label>
+
+  <label>
+    Expiry Date:
+    <input type="date" name="expiry_date" value="{{ doc[3] }}" required>
+  </label>
+
+  <label>
+    Responsible Person:
+    <input type="text" name="responsible" value="{{ doc[4] }}" required>
+  </label>
+
+  <button type="submit" class="btn-primary">💾 Save Changes</button>
 </form>
-<a href="{{ url_for('expiry') }}" style="margin-top: 1rem; display: inline-block;">⬅️ Back to Tracker</a>
+
+<a href="{{ url_for('expiry') }}" class="back-link">⬅️ Back to Expiry Tracker</a>
 {% endblock %}
