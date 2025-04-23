@@ -172,17 +172,28 @@ def task_detail(wo_id, task_id):
         with open('mock_quantum_data.json', 'r') as f:
             work_orders = json.load(f)
     except FileNotFoundError:
-        return "⚠️ Work order data file not found. Please check your server or file path.", 500
+        return render_template(
+            "error.html",
+            message_title="Work Order Data Missing",
+            message_body="The mock work order data file could not be found. Please ensure the file exists and is accessible."
+        ), 500
 
     selected_wo = next((wo for wo in work_orders if wo['work_order_id'] == wo_id), None)
     if not selected_wo:
-        return f"⚠️ Work order {wo_id} not found.", 404
+        return render_template(
+            "error.html",
+            message_title="Work Order Not Found",
+            message_body=f"Work order {wo_id} does not exist in the current dataset."
+        ), 404
 
     selected_task = next((t for t in selected_wo['tasks'] if t['task_id'] == task_id), None)
     if not selected_task:
-        return f"⚠️ Task {task_id} not found in work order {wo_id}.", 404
+        return render_template(
+            "error.html",
+            message_title="Task Not Found",
+            message_body=f"Task {task_id} is not part of work order {wo_id}."
+        ), 404
 
-    # (rest of the function unchanged)
 
 
     # Always fetch recent updates (whether GET or POST)

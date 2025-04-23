@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Error – Aero Repair Corp{% endblock %}
+
+{% block content %}
+<div class="error-card">
+    <h2>⚠️ {{ message_title }}</h2>
+    <p>{{ message_body }}</p>
+    <a href="{{ url_for('dashboard') }}">
+        <button class="log-btn">← Back to Dashboard</button>
+    </a>
+</div>
+{% endblock %}
