@@ -49,7 +49,7 @@ def create_test_user():
     conn.close()
 
 # ✅ Run these immediately at startup (works locally and on Railway)
-# init_user_db()
+init_user_db()
 create_test_user() # 🔒 Temporarily disabled to avoid overwriting users
 
 
@@ -777,7 +777,6 @@ threading.Thread(target=pdf_organizer_loop, daemon=True).start()
 
 # === START FLASK APP ===
 if __name__ == "__main__":
-    init_user_db()
     ensure_task_updates_table_exists()
     app.run(debug=True)
 
