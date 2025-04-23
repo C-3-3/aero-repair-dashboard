@@ -168,23 +168,22 @@ def task_detail(wo_id, task_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    with open('mock_quantum_data.json', 'r') as f:
-        work_orders = json.load(f)
+    try:
+        with open('mock_quantum_data.json', 'r') as f:
+            work_orders = json.load(f)
+    except FileNotFoundError:
+        return "⚠️ Work order data file not found. Please check your server or file path.", 500
 
-    selected_wo = None
-    selected_task = None
+    selected_wo = next((wo for wo in work_orders if wo['work_order_id'] == wo_id), None)
+    if not selected_wo:
+        return f"⚠️ Work order {wo_id} not found.", 404
 
-    for wo in work_orders:
-        if wo['work_order_id'] == wo_id:
-            selected_wo = wo
-            for task in wo['tasks']:
-                if task['task_id'] == task_id:
-                    selected_task = task
-                    break
-            break
-
+    selected_task = next((t for t in selected_wo['tasks'] if t['task_id'] == task_id), None)
     if not selected_task:
-        return "Task not found", 404
+        return f"⚠️ Task {task_id} not found in work order {wo_id}.", 404
+
+    # (rest of the function unchanged)
+
 
     # Always fetch recent updates (whether GET or POST)
     conn = sqlite3.connect('task_updates.db')
