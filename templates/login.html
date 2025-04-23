@@ -1,22 +1,29 @@
 {% extends "base.html" %}
-{% block title %}Login{% endblock %}
+{% block title %}Login – Aero Repair Corp{% endblock %}
 
 {% block content %}
-<h2>🔐 Aero Repair Login</h2>
+<h2>🔐 Aero Repair Dashboard Login</h2>
+<p>Please enter your credentials to access internal tools.</p>
 
-<form method="POST">
-  <label>Username: <input type="text" name="username" required></label><br><br>
-  <label>Password: <input type="password" name="password" required></label><br><br>
-  <button type="submit">Log In</button>
+<form method="POST" class="login-form" style="max-width: 400px; margin-top: 1rem;">
+  <label for="username">Username:</label><br>
+  <input type="text" name="username" id="username" required style="width: 100%; padding: 8px;"><br><br>
+
+  <label for="password">Password:</label><br>
+  <input type="password" name="password" id="password" required style="width: 100%; padding: 8px;"><br><br>
+
+  <button type="submit" style="width: 100%; background-color: #003366; color: white; padding: 10px;">🔓 Log In</button>
 </form>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
-    <ul>
+    <div class="flash-messages" style="margin-top: 1rem;">
       {% for category, message in messages %}
-        <li><strong>{{ category.title() }}:</strong> {{ message }}</li>
+        <div style="color: red; font-weight: bold;">
+          ⚠️ {{ message }}
+        </div>
       {% endfor %}
-    </ul>
+    </div>
   {% endif %}
 {% endwith %}
 
