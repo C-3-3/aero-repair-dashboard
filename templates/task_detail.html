@@ -43,14 +43,15 @@
 <h3>🕒 Recent Updates</h3>
 <ul>
   {% for update in recent_updates %}
-  <li>
-  <strong>Status:</strong> {{ update[0] }}<br>
-  <strong>Comment:</strong> {{ update[1] or "—" }}<br>
-  <strong>By:</strong> {{ update[3] or "unknown" }}<br>
-  <em>{{ update[2] }}</em>
-</li>
+    <li>
+      <strong>Status:</strong> {{ update[0] }}<br>
+      <strong>Comment:</strong> {{ update[1] or "—" }}<br>
+      <strong>By:</strong> {{ update[3] or "unknown" }}<br>
+      <em>{{ update[2] }}</em>
+    </li>
   {% endfor %}
 </ul>
+
 
 
 

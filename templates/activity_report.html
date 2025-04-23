@@ -38,18 +38,19 @@
   <tbody>
     {% for row in updates %}
     <tr>
-  <td>{{ row[0] }}</td>
+  <td>{{ row[0] }}</td> <!-- Work Order ID -->
   <td>
     <a href="{{ url_for('task_detail', wo_id=row[0], task_id=row[1]) }}">
       {{ row[1] }}
-    </a>
+    </a> <!-- Task ID with link -->
   </td>
-  <td>{{ wo_to_aircraft.get(row[0], "Unknown") }}</td>
-  <td>{{ row[2] }}</td>
-  <td>{{ row[3] or "—" }}</td>
-  <td>{{ row[4] }}</td>
-  <td>{{ row[5] }}</td>
+  <td>{{ wo_to_aircraft.get(row[0], "Unknown") }}</td> <!-- Aircraft -->
+  <td>{{ row[2] }}</td> <!-- Status -->
+  <td>{{ row[3] or "—" }}</td> <!-- Comment -->
+  <td>{{ row[4] }}</td> <!-- User/Technician -->
+  <td>{{ row[5] }}</td> <!-- Timestamp -->
 </tr>
+
 
 
     {% endfor %}

@@ -52,7 +52,7 @@ def create_test_user():
 def ensure_task_updates_table_exists():
     conn = sqlite3.connect("task_updates.db")
     cursor = conn.cursor()
-    cursor.execute("""
+    cursor.execute('''
         CREATE TABLE IF NOT EXISTS task_updates (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             work_order_id TEXT,
@@ -60,11 +60,12 @@ def ensure_task_updates_table_exists():
             status TEXT,
             comment TEXT,
             timestamp TEXT,
-            author TEXT
+            user TEXT
         )
-    """)
+    ''')
     conn.commit()
     conn.close()
+
 
 def init_task_db():
     conn = sqlite3.connect(TASK_DB)
@@ -179,7 +180,7 @@ def task_detail(wo_id, task_id):
     conn = sqlite3.connect('task_updates.db')
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT status, comment, timestamp
+        SELECT status, comment, timestamp, user
         FROM task_updates
         WHERE work_order_id = ? AND task_id = ?
         ORDER BY timestamp DESC
@@ -192,13 +193,14 @@ def task_detail(wo_id, task_id):
     if request.method == 'POST':
         status = request.form['status']
         comment = request.form['comment']
-        author = session.get('username', 'unknown')
+        user = session.get('username', 'unknown')
 
         conn = sqlite3.connect('task_updates.db')
         cursor = conn.cursor()
-        cursor.execute('''INSERT INTO task_updates (work_order_id, task_id, status, comment, timestamp, author)
-                              VALUES (?, ?, ?, ?, ?, ?)''',
-                       (wo_id, task_id, status, comment, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), author))
+        cursor.execute('''
+            INSERT INTO task_updates (work_order_id, task_id, status, comment, timestamp, user)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (wo_id, task_id, status, comment, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), user))
         conn.commit()
         conn.close()
 
