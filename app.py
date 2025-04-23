@@ -311,20 +311,6 @@ def tasks():
                            filter_status=filter_status)
 
 
-
-@app.route('/complete-task/<int:task_id>')
-def complete_task(task_id):
-    if not session.get('logged_in'):
-        return redirect(url_for('login'))
-
-    conn = sqlite3.connect(TASK_DB)
-    cursor = conn.cursor()
-    cursor.execute("UPDATE tasks SET status = 'Completed' WHERE id = ?", (task_id,))
-    conn.commit()
-    conn.close()
-    return redirect('/tasks')
-
-
 @app.route('/complete-task/<int:task_id>')
 def complete_task(task_id):
     if not session.get('logged_in'):
@@ -364,6 +350,16 @@ def complete_task(task_id):
 
     flash("Task marked as complete and recorded!", "success")
     return redirect('/tasks')
+
+
+@app.route('/delete-task/<int:task_id>', methods=['POST'])
+def delete_task(task_id):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    if session.get('role') != 'manager':
+        flash("Only managers can delete tasks.", "error")
+        return redirect('/tasks')
 
     conn = sqlite3.connect(TASK_DB)
     cursor = conn.cursor()
