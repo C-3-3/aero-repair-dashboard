@@ -1,16 +1,25 @@
-<!-- help page content -->
-
 {% extends "base.html" %}
 {% block title %}Dashboard Help & Guide{% endblock %}
 
 {% block content %}
-<h2>Dashboard Help</h2>
-<p>This dashboard was created to support Aero Repair Corp's Part 145 operations. Use the tools above to manage maintenance tasks, inspections, compliance tracking, and documentation.</p>
-<ul>
-    <li><strong>Maintenance Tasks</strong>: Assign and track internal jobs</li>
-    <li><strong>Sign-Off Log</strong>: Capture technician sign-offs</li>
-    <li><strong>Inspections</strong>: Log conditions of received parts</li>
-    <li><strong>Expiry Tracker</strong>: Monitor calibration and training dates</li>
-    <li><strong>PDF Organizer</strong>: Auto-sorts incoming documents by content</li>
+<h2>🛠 Dashboard Help & User Guide</h2>
+
+<p>This dashboard was built in-house to support Aero Repair Corp's Part 145 operations by improving visibility, accountability, and documentation across the facility.</p>
+
+<h3>🔧 Available Tools</h3>
+<ul style="line-height: 1.8;">
+    <li><strong>🧰 Maintenance Tasks</strong>: Create, assign, and track internal jobs for facilities, tooling, or production support. Role-based permissions apply — technicians can view and complete, managers can create and delete.</li>
+    <li><strong>✍️ Digital Sign-Off Log</strong>: Submit and view technician sign-offs for completed work. Each entry is timestamped and linked to the task or service performed.</li>
+    <li><strong>🔍 Part Inspections</strong>: Document the condition of received parts, including packaging, paperwork, and general acceptance notes.</li>
+    <li><strong>⏰ Expiry Tracker</strong>: Monitor important expiration dates like calibration, training, and regulatory documents. Alerts are triggered automatically for upcoming expirations.</li>
+    <li><strong>📁 PDF Log</strong>: Review the history of automatically sorted incoming PDFs. Files are routed based on keywords found in their content and filed accordingly.</li>
 </ul>
+
+<h3>📬 Support</h3>
+<p>Found a bug or have a suggestion? Please contact <strong>mkruscica@aerorepaircorp.com</strong> or reach out in person.</p>
+
+<h3>🚧 Disclaimer</h3>
+<p>This dashboard is currently in <strong>beta</strong>. Expect ongoing improvements, feature updates, and the eventual integration with Quantum.</p>
+
+<a href="{{ url_for('dashboard') }}">← Back to Dashboard</a>
 {% endblock %}
