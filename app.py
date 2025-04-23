@@ -366,8 +366,7 @@ def signoff():
     conn.commit()
     conn.close()
 
-    # Then run safe migration checks
-    ensure_task_updates_table_exists()
+
 
 
     # Reconnect after the table is safely built
@@ -779,6 +778,7 @@ threading.Thread(target=pdf_organizer_loop, daemon=True).start()
 # === START FLASK APP ===
 if __name__ == "__main__":
     init_user_db()
+    ensure_task_updates_table_exists()
     create_test_user()
     init_task_db()
     app.run(debug=True)
