@@ -26,6 +26,7 @@ USERS_DB = "users.db"
 
 # Run this once on app startup
 
+# === Initialize databases on startup (runs locally and on Railway) ===
 def init_user_db():
     conn = sqlite3.connect(USERS_DB)
     cursor = conn.cursor()
@@ -65,7 +66,28 @@ def ensure_task_updates_table_exists():
     conn.commit()
     conn.close()
 
+def init_task_db():
+    conn = sqlite3.connect(TASK_DB)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            description TEXT NOT NULL,
+            assigned_to TEXT,
+            due_date DATE,
+            status TEXT DEFAULT 'Pending',
+            notes TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# === Run on every startup (even on Railway) ===
+init_user_db()
 ensure_task_updates_table_exists()
+init_task_db()
+create_test_user()  # keep commented out in production
+
 
 
 
@@ -90,21 +112,6 @@ def login():
             flash("Invalid credentials", "error")
 
     return render_template("login.html")
-
-
-def init_user_db():
-    conn = sqlite3.connect(USERS_DB)
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE,
-            password TEXT,
-            role TEXT
-        )
-    ''')
-    conn.commit()
-    conn.close()
 
 @app.route('/logout')
 def logout():
@@ -775,8 +782,6 @@ threading.Thread(target=pdf_organizer_loop, daemon=True).start()
 
 # === START FLASK APP ===
 if __name__ == "__main__":
-    init_user_db()
-    create_test_user()  # 🔒 Temporarily disabled to avoid overwriting users
     app.run(debug=True)
 
 
